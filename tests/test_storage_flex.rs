@@ -176,5 +176,8 @@ fn test_restore_from_python_generated_fixtures() {
         "delta result should contain updated date"
     );
 
-    assert_ne!(base_xml, delta_xml, "delta should produce different content");
+    assert_ne!(
+        base_xml, delta_xml,
+        "delta should produce different content"
+    );
 }

@@ -25,11 +25,15 @@ fn test_python_reads_rust_written_files() {
     write_test_rates(&data_dir);
     write_test_declarations(&data_dir);
 
-    let test_script = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/test_python_compat.py");
+    let test_script =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/test_python_compat.py");
 
     let output = std::process::Command::new(&uv)
-        .args(["run", test_script.to_str().unwrap(), data_dir.to_str().unwrap()])
+        .args([
+            "run",
+            test_script.to_str().unwrap(),
+            data_dir.to_str().unwrap(),
+        ])
         .output()
         .expect("Failed to execute `uv run`");
 

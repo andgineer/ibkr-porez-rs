@@ -36,13 +36,13 @@ impl Default for Storage {
 }
 
 impl Storage {
-    #[must_use] 
+    #[must_use]
     pub fn new() -> Self {
         let cfg = config::load_config();
         Self::with_config(&cfg)
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn with_config(cfg: &UserConfig) -> Self {
         let app_data_dir = dirs::data_dir()
             .unwrap_or_else(|| PathBuf::from("."))
@@ -65,7 +65,7 @@ impl Storage {
     }
 
     /// Build a `Storage` rooted at the given directory (useful for tests).
-    #[must_use] 
+    #[must_use]
     pub fn with_dir(dir: &Path) -> Self {
         let s = Self {
             data_dir: dir.to_path_buf(),
@@ -105,7 +105,7 @@ impl Storage {
     // =======================================================================
 
     /// Read transactions from disk. Returns empty vec on missing / invalid file.
-    #[must_use] 
+    #[must_use]
     pub fn load_transactions(&self) -> Vec<Transaction> {
         if !self.transactions_file.exists() {
             return Vec::new();
@@ -160,7 +160,7 @@ impl Storage {
         Ok((inserted, updated))
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn get_last_transaction_date(&self) -> Option<NaiveDate> {
         self.load_transactions().iter().map(|t| t.date).max()
     }
@@ -169,7 +169,7 @@ impl Storage {
     // Exchange Rates
     // =======================================================================
 
-    #[must_use] 
+    #[must_use]
     pub fn load_rates(&self) -> IndexMap<String, String> {
         if !self.rates_file.exists() {
             return IndexMap::new();
@@ -261,7 +261,7 @@ impl Storage {
         self.save_declarations_file(&file)
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn get_declarations(
         &self,
         status: Option<&DeclarationStatus>,
@@ -283,14 +283,14 @@ impl Storage {
         decls
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn get_declaration(&self, declaration_id: &str) -> Option<Declaration> {
         self.get_declarations(None, None)
             .into_iter()
             .find(|d| d.declaration_id == declaration_id)
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn declaration_exists(&self, declaration_id: &str) -> bool {
         self.get_declaration(declaration_id).is_some()
     }
@@ -312,7 +312,7 @@ impl Storage {
         self.save_declaration(&decl)
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn get_last_declaration_date(&self) -> Option<NaiveDate> {
         let file = self.load_declarations_file();
         file.last_declaration_date
@@ -362,8 +362,10 @@ pub fn merge_transactions(existing: &mut Vec<Transaction>, new: &[Transaction]) 
     }
 
     let existing_ids: HashSet<String> = existing.iter().map(|t| t.transaction_id.clone()).collect();
-    let existing_by_id: HashMap<String, &Transaction> =
-        existing.iter().map(|t| (t.transaction_id.clone(), t)).collect();
+    let existing_by_id: HashMap<String, &Transaction> = existing
+        .iter()
+        .map(|t| (t.transaction_id.clone(), t))
+        .collect();
 
     let official_new_dates = get_official_dates(new);
 
@@ -391,9 +393,10 @@ pub fn merge_transactions(existing: &mut Vec<Transaction>, new: &[Transaction]) 
 
         if existing_ids.contains(new_id) {
             if let Some(existing_txn) = existing_by_id.get(new_id)
-                && txn.is_identical_to(existing_txn) {
-                    continue;
-                }
+                && txn.is_identical_to(existing_txn)
+            {
+                continue;
+            }
             to_add.push(txn.clone());
             updates_count += 1;
             continue;
@@ -458,9 +461,10 @@ fn consume_match(
         *count = count.saturating_sub(1);
     }
     if let Some(ids) = id_map.get_mut(k)
-        && !ids.is_empty() {
-            ids.remove(0);
-        }
+        && !ids.is_empty()
+    {
+        ids.remove(0);
+    }
 }
 
 fn get_official_dates(txns: &[Transaction]) -> HashSet<String> {
@@ -473,4 +477,3 @@ fn get_official_dates(txns: &[Transaction]) -> HashSet<String> {
 fn get_official_dates_from_slice(txns: &[Transaction]) -> HashSet<String> {
     get_official_dates(txns)
 }
-

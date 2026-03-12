@@ -6,9 +6,8 @@ use anyhow::Result;
 use chrono::NaiveDate;
 use regex::Regex;
 
-static HUNK_RE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@").unwrap()
-});
+static HUNK_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@").unwrap());
 
 const SMALL_FILE_THRESHOLD_BYTES: usize = 2048;
 
@@ -23,8 +22,8 @@ fn save_zipped_file(file_path: &Path, content: &str) -> Result<()> {
         .file_stem()
         .and_then(|s| s.to_str())
         .unwrap_or("data");
-    let options =
-        zip::write::FileOptions::<()>::default().compression_method(zip::CompressionMethod::Deflated);
+    let options = zip::write::FileOptions::<()>::default()
+        .compression_method(zip::CompressionMethod::Deflated);
     zip.start_file(inner_name, options)?;
     zip.write_all(content.as_bytes())?;
     zip.finish()?;
@@ -65,25 +64,24 @@ fn find_base_file(dir: &Path, before_date: NaiveDate) -> Option<PathBuf> {
     base_files.reverse();
     for f in base_files {
         if let Some(d) = parse_date_from_filename(f.file_name()?.to_str()?)
-            && d <= before_date {
-                return Some(f);
-            }
+            && d <= before_date
+        {
+            return Some(f);
+        }
     }
     None
 }
 
-fn get_delta_files_between(
-    dir: &Path,
-    start_date: NaiveDate,
-    end_date: NaiveDate,
-) -> Vec<PathBuf> {
+fn get_delta_files_between(dir: &Path, start_date: NaiveDate, end_date: NaiveDate) -> Vec<PathBuf> {
     let mut result = Vec::new();
     for f in glob_sorted(dir, "delta-*.patch.zip") {
         if let Some(name) = f.file_name().and_then(|n| n.to_str())
             && let Some(d) = parse_date_from_filename(name)
-                && d > start_date && d <= end_date {
-                    result.push(f);
-                }
+            && d > start_date
+            && d <= end_date
+        {
+            result.push(f);
+        }
     }
     result
 }
@@ -234,9 +232,10 @@ fn get_latest_report_content_any_date(dir: &Path) -> Option<(String, PathBuf)> {
     for delta_file in all_deltas {
         if let Some(name) = delta_file.file_name().and_then(|n| n.to_str())
             && let Some(d) = parse_date_from_filename(name)
-                && d >= base_date {
-                    lines = apply_patch(&lines, &delta_file).unwrap_or(lines);
-                }
+            && d >= base_date
+        {
+            lines = apply_patch(&lines, &delta_file).unwrap_or(lines);
+        }
     }
 
     Some((lines.join(""), base_file))
@@ -324,9 +323,10 @@ pub fn cleanup_old_base(flex_queries_dir: &Path, keep_date: NaiveDate) {
     for f in glob_sorted(flex_queries_dir, "base-*.xml.zip") {
         if let Some(name) = f.file_name().and_then(|n| n.to_str())
             && let Some(d) = parse_date_from_filename(name)
-                && d < keep_date {
-                    let _ = std::fs::remove_file(&f);
-                }
+            && d < keep_date
+        {
+            let _ = std::fs::remove_file(&f);
+        }
     }
 }
 

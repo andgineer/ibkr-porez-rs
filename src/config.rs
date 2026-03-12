@@ -10,9 +10,10 @@ const CONFIG_FILENAME: &str = "config.json";
 
 fn expand_tilde(path: &str) -> PathBuf {
     if let Some(rest) = path.strip_prefix("~/")
-        && let Some(home) = dirs::home_dir() {
-            return home.join(rest);
-        }
+        && let Some(home) = dirs::home_dir()
+    {
+        return home.join(rest);
+    }
     PathBuf::from(path)
 }
 
@@ -87,7 +88,7 @@ pub fn get_data_dir_change_warning(old: &UserConfig, new: &UserConfig) -> Option
 // Config load / save
 // ---------------------------------------------------------------------------
 
-#[must_use] 
+#[must_use]
 pub fn load_config() -> UserConfig {
     let path = config_file_path();
     if !path.exists() {

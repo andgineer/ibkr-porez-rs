@@ -64,7 +64,7 @@ pub enum DeclarationStatus {
 }
 
 impl DeclarationStatus {
-    #[must_use] 
+    #[must_use]
     pub fn draft_default() -> Self {
         Self::Draft
     }
@@ -102,7 +102,9 @@ use std::str::FromStr;
 fn parse_decimal_value(value: &serde_json::Value) -> Result<Decimal, String> {
     match value {
         serde_json::Value::String(s) => Decimal::from_str(s).map_err(|e| e.to_string()),
-        serde_json::Value::Number(n) => Decimal::from_str(&n.to_string()).map_err(|e| e.to_string()),
+        serde_json::Value::Number(n) => {
+            Decimal::from_str(&n.to_string()).map_err(|e| e.to_string())
+        }
         _ => Err("expected string or number".into()),
     }
 }
@@ -125,11 +127,15 @@ pub fn deserialize_decimal<'de, D: Deserializer<'de>>(d: D) -> Result<Decimal, D
     parse_decimal_value(&v).map_err(serde::de::Error::custom)
 }
 
-pub fn deserialize_decimal_opt<'de, D: Deserializer<'de>>(d: D) -> Result<Option<Decimal>, D::Error> {
+pub fn deserialize_decimal_opt<'de, D: Deserializer<'de>>(
+    d: D,
+) -> Result<Option<Decimal>, D::Error> {
     let v = Option::<serde_json::Value>::deserialize(d)?;
     match v {
         None | Some(serde_json::Value::Null) => Ok(None),
-        Some(ref val) => parse_decimal_value(val).map(Some).map_err(serde::de::Error::custom),
+        Some(ref val) => parse_decimal_value(val)
+            .map(Some)
+            .map_err(serde::de::Error::custom),
     }
 }
 
@@ -138,12 +144,16 @@ pub fn deserialize_date<'de, D: Deserializer<'de>>(d: D) -> Result<NaiveDate, D:
     parse_date_str(&s).map_err(serde::de::Error::custom)
 }
 
-pub fn deserialize_date_opt<'de, D: Deserializer<'de>>(d: D) -> Result<Option<NaiveDate>, D::Error> {
+pub fn deserialize_date_opt<'de, D: Deserializer<'de>>(
+    d: D,
+) -> Result<Option<NaiveDate>, D::Error> {
     let v = Option::<String>::deserialize(d)?;
     match v {
         None => Ok(None),
         Some(s) if s.is_empty() => Ok(None),
-        Some(s) => parse_date_str(&s).map(Some).map_err(serde::de::Error::custom),
+        Some(s) => parse_date_str(&s)
+            .map(Some)
+            .map_err(serde::de::Error::custom),
     }
 }
 
@@ -249,13 +259,11 @@ pub struct Declaration {
 }
 
 /// Top-level structure of `declarations.json`.
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-#[derive(Default)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct DeclarationsFile {
     pub declarations: Vec<serde_json::Value>,
     pub last_declaration_date: Option<String>,
 }
-
 
 fn default_city_code() -> String {
     "223".into()
@@ -321,11 +329,22 @@ impl Transaction {
             .ok()
             .and_then(|v| v.as_str().map(String::from))
             .unwrap_or_default();
-        let q = self.quantity.abs().to_string().parse::<f64>().unwrap_or(0.0);
+        let q = self
+            .quantity
+            .abs()
+            .to_string()
+            .parse::<f64>()
+            .unwrap_or(0.0);
         let p = self.price.to_string().parse::<f64>().unwrap_or(0.0);
         #[allow(clippy::cast_possible_truncation)]
         let p_rounded = (p * 10000.0).round() as i64;
-        (date_str, self.symbol.clone(), type_value, q.to_bits(), p_rounded)
+        (
+            date_str,
+            self.symbol.clone(),
+            type_value,
+            q.to_bits(),
+            p_rounded,
+        )
     }
 
     #[must_use]

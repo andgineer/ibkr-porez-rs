@@ -68,7 +68,10 @@ fn test_read_transactions_fixture() {
     assert_eq!(t0.open_price, Some(rust_decimal::Decimal::ZERO));
 
     // DIVIDEND record
-    let dividends: Vec<_> = txns.iter().filter(|t| t.r#type == TransactionType::Dividend).collect();
+    let dividends: Vec<_> = txns
+        .iter()
+        .filter(|t| t.r#type == TransactionType::Dividend)
+        .collect();
     assert!(!dividends.is_empty());
     assert!(dividends[0].open_price.is_none());
 
@@ -155,8 +158,7 @@ fn test_read_declarations_fixture() {
     assert!(d1.report_data.is_some());
     assert_eq!(d1.report_data.as_ref().unwrap().len(), 14);
 
-    let entry: TaxReportEntry =
-        serde_json::from_value(d1.report_data.unwrap()[0].clone()).unwrap();
+    let entry: TaxReportEntry = serde_json::from_value(d1.report_data.unwrap()[0].clone()).unwrap();
     assert_eq!(entry.ticker, "CCC");
     assert!(!entry.is_tax_exempt);
 

@@ -1,6 +1,6 @@
 use chrono::NaiveDate;
 use ibkr_porez::models::*;
-use ibkr_porez::storage::{merge_transactions, Storage};
+use ibkr_porez::storage::{Storage, merge_transactions};
 use pretty_assertions::assert_eq;
 use rust_decimal::Decimal;
 use std::str::FromStr;
@@ -164,9 +164,11 @@ fn test_storage_rates_roundtrip() {
     assert!(loaded.is_some());
     assert_eq!(loaded.unwrap().rate, Decimal::from_str("117.25").unwrap());
 
-    assert!(storage
-        .get_exchange_rate(d(2025, 6, 16), &Currency::USD)
-        .is_none());
+    assert!(
+        storage
+            .get_exchange_rate(d(2025, 6, 16), &Currency::USD)
+            .is_none()
+    );
 }
 
 #[test]
@@ -211,13 +213,8 @@ fn test_storage_last_declaration_date() {
 
     assert!(storage.get_last_declaration_date().is_none());
 
-    storage
-        .set_last_declaration_date(d(2025, 12, 31))
-        .unwrap();
-    assert_eq!(
-        storage.get_last_declaration_date(),
-        Some(d(2025, 12, 31))
-    );
+    storage.set_last_declaration_date(d(2025, 12, 31)).unwrap();
+    assert_eq!(storage.get_last_declaration_date(), Some(d(2025, 12, 31)));
 }
 
 #[test]
@@ -267,4 +264,3 @@ fn test_get_transactions_date_filter() {
     let to_only = storage.get_transactions(None, Some(d(2025, 7, 20)));
     assert_eq!(to_only.len(), 2);
 }
-
