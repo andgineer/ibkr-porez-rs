@@ -1,0 +1,13 @@
+[book]
+title = "ibkr-porez"
+authors = ["Andrey Sorokin"]
+language = "sr"
+src = "src"
+
+[build]
+build-dir = "../../site/rs-cyr"
+
+[output.html]
+git-repository-url = "https://github.com/andgineer/ibkr-porez-rs"
+additional-css = ["../theme/lang-switcher.css"]
+additional-js = ["../theme/lang-switcher.js"]

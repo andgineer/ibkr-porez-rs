@@ -1,4 +1,5 @@
 /target
+/site
 *.swp
 .DS_Store
 /plans

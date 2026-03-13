@@ -3,71 +3,95 @@
 Serbian tax reporting for Interactive Brokers -- Rust rewrite of
 [ibkr-porez (Python)](https://github.com/andgineer/ibkr-porez).
 
+Functionally and database compatible with the Python version -- you can switch
+between them without data loss.
+
+**[Documentation](https://andgineer.github.io/ibkr-porez-rs/)**
+
 ## Migration Status
 
-- [ ] Models and storage
-- [ ] IBKR API clients (Flex Query, CSV)
-- [ ] NBS exchange rate client
-- [ ] Tax calculations (FIFO)
-- [ ] PPDG-3R report (capital gains)
-- [ ] PP-OPO report (capital income)
+- [x] Models and storage (Python-compatible JSON)
+- [x] IBKR API clients (Flex Query XML, CSV import)
+- [x] NBS exchange rate client (with holiday calendar)
+- [x] Tax calculations (FIFO, 10-year exemption)
+- [x] PPDG-3R report generation (capital gains XML)
+- [x] PP-OPO report generation (capital income XML)
 - [ ] CLI commands
 - [ ] GUI
 - [ ] Packaging and installers
 
-## Prerequisites
+## Installation
+
+Download a prebuilt binary from the
+[releases page](https://github.com/andgineer/ibkr-porez-rs/releases),
+or install from source:
+
+```sh
+cargo install ibkr-porez
+```
+
+## Quick Start
+
+```sh
+# Configure personal data and IBKR access
+ibkr-porez config
+
+# Fetch latest data from IBKR and sync NBS exchange rates
+ibkr-porez fetch
+
+# Import historical CSV data (for transactions older than 1 year)
+ibkr-porez import /path/to/activity_statement.csv
+
+# Fetch data + create all due declarations
+ibkr-porez sync
+
+# Generate a specific tax report
+ibkr-porez report
+
+# List declarations
+ibkr-porez list
+
+# Submit / pay / export a declaration
+ibkr-porez submit <id>
+ibkr-porez pay <id>
+ibkr-porez export <id>
+```
+
+See the full [usage guide](https://andgineer.github.io/ibkr-porez-rs/en/usage.html)
+for all commands and options.
+
+## Development
+
+### Prerequisites
 
 - [Rust](https://rustup.rs/) (stable toolchain, installed via `rustup`)
 - `rustfmt` and `clippy` are installed automatically from `rust-toolchain.toml`
 
-## Build
+### Build
 
 ```sh
-# Build everything (debug)
-cargo build
-
-# Build release binaries (optimized, stripped)
-cargo build --release
+cargo build            # debug
+cargo build --release  # optimized, stripped
 ```
 
 Two binaries are produced:
 - `target/release/ibkr-porez` -- CLI
 - `target/release/gui` -- GUI
 
-## Run
+### Tests
 
 ```sh
-# Run CLI (default binary)
-cargo run -- --help
-
-# Run GUI
-cargo run --bin gui
-```
-
-## Tests
-
-```sh
-# Run all tests
 cargo test
-
-# Run tests with output
-cargo test -- --nocapture
 ```
 
-## Linting and Formatting
+### Linting and Formatting
 
 ```sh
-# Check formatting (same as CI)
 cargo fmt --check
-
-# Auto-format
-cargo fmt
-
-# Run clippy linter (same as CI)
 cargo clippy -- -D warnings
 ```
 
-## Versioning and Release
+### Versioning and Release
 
 The single source of truth for the version is `version` in `Cargo.toml`.
 
@@ -93,3 +117,17 @@ git push origin main v$(make version)
 
 The workflow builds release binaries for Linux, macOS (x86_64 + aarch64),
 and Windows, then publishes them as a GitHub Release.
+
+### Documentation
+
+Docs are built with [mdBook](https://rust-lang.github.io/mdBook/) (5 languages)
+and deployed automatically to
+[GitHub Pages](https://andgineer.github.io/ibkr-porez-rs/) on push to `main`.
+
+```sh
+# Build locally
+bash scripts/build-docs.sh
+
+# Serve locally (English only)
+mdbook serve docs/en
+```
