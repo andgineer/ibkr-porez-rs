@@ -16,12 +16,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
       - name: Check version
         run: |
           CARGO_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)"
           TAG_VERSION="${GITHUB_REF_NAME#v}"
           if [ "$CARGO_VERSION" != "$TAG_VERSION" ]; then
             echo "::error::Cargo.toml version ($CARGO_VERSION) does not match tag ($TAG_VERSION)"
+            exit 1
+          fi
+
+      - name: Verify holiday snapshot is up to date
+        run: |
+          make holidays
+          if ! git diff --exit-code src/generated/serbian_holidays.json; then
+            echo "::error::Holiday snapshot is outdated. Run 'make ver-holidays' and push before tagging."
             exit 1
           fi
 

@@ -43,6 +43,29 @@ pub enum Currency {
     RSD,
 }
 
+impl Currency {
+    #[must_use]
+    pub fn from_code(s: &str) -> Option<Self> {
+        match s {
+            "USD" => Some(Self::USD),
+            "EUR" => Some(Self::EUR),
+            "GBP" => Some(Self::GBP),
+            "RSD" => Some(Self::RSD),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub fn as_lowercase(&self) -> &str {
+        match self {
+            Self::USD => "usd",
+            Self::EUR => "eur",
+            Self::GBP => "gbp",
+            Self::RSD => "rsd",
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum DeclarationType {
     #[serde(rename = "PPDG-3R")]

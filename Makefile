@@ -3,7 +3,9 @@ MAJOR := $(word 1,$(subst ., ,$(VERSION)))
 MINOR := $(word 2,$(subst ., ,$(VERSION)))
 PATCH := $(word 3,$(subst ., ,$(VERSION)))
 
-.PHONY: version check-version ver-release ver-feature ver-bug
+SNAPSHOT := src/generated/serbian_holidays.json
+
+.PHONY: version check-version ver-release ver-feature ver-bug holidays ver-holidays
 
 version:
 	@echo $(VERSION)
@@ -14,6 +16,13 @@ check-version:
 		echo "error: Cargo.toml version v$(VERSION) does not match tag $$CI_TAG"; exit 1; \
 	fi
 	@echo "Version check passed: v$(VERSION)"
+
+holidays:
+	@cargo run --bin fetch_holidays
+
+ver-holidays:
+	@$(MAKE) holidays
+	@$(MAKE) _bump NEW_VERSION=$(MAJOR).$(shell echo $$(($(MINOR)+1))).0 EXTRA_FILES=$(SNAPSHOT)
 
 ver-bug:
 	@$(MAKE) _bump NEW_VERSION=$(MAJOR).$(MINOR).$(shell echo $$(($(PATCH)+1)))
@@ -27,7 +36,7 @@ _bump:
 	@echo "$(VERSION) -> $(NEW_VERSION)"
 	@perl -pi -e 's/^version = "$(VERSION)"/version = "$(NEW_VERSION)"/' Cargo.toml
 	@cargo generate-lockfile --quiet
-	@git add Cargo.toml Cargo.lock
+	@git add Cargo.toml Cargo.lock $(EXTRA_FILES)
 	@git commit -m "v$(NEW_VERSION)"
 	@git tag "v$(NEW_VERSION)"
 	@echo ""

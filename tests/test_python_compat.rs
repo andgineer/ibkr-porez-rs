@@ -5,14 +5,9 @@ use std::str::FromStr;
 use tempfile::TempDir;
 
 /// Cross-language compatibility test: write files with Rust, verify Python can read them.
-///
-/// Skips automatically when `uv` is not on PATH.
 #[test]
 fn test_python_reads_rust_written_files() {
-    let Some(uv) = find_uv() else {
-        eprintln!("skipping: `uv` not found on PATH");
-        return;
-    };
+    let uv = find_uv();
 
     let temp = TempDir::new().unwrap();
     let data_dir = temp.path().join("data");
@@ -28,7 +23,7 @@ fn test_python_reads_rust_written_files() {
     let test_script =
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/test_python_compat.py");
 
-    let output = std::process::Command::new(&uv)
+    let output = std::process::Command::new(uv)
         .args([
             "run",
             test_script.to_str().unwrap(),
@@ -52,13 +47,17 @@ fn test_python_reads_rust_written_files() {
     );
 }
 
-fn find_uv() -> Option<String> {
-    std::process::Command::new("uv")
+fn find_uv() -> String {
+    let output = std::process::Command::new("uv")
         .arg("--version")
         .output()
-        .ok()
-        .filter(|o| o.status.success())
-        .map(|_| "uv".into())
+        .expect("`uv` must be installed to run Python compatibility tests");
+    assert!(
+        output.status.success(),
+        "`uv --version` failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    "uv".into()
 }
 
 fn write_test_config(data_dir: &std::path::Path) {

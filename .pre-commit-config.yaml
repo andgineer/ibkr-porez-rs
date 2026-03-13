@@ -1,0 +1,14 @@
+repos:
+  - repo: https://github.com/doublify/pre-commit-rust
+    rev: v1.0
+    hooks:
+      - id: fmt
+  - repo: local
+    hooks:
+      - id: holidays
+        name: update serbian holidays snapshot
+        entry: bash -c 'make holidays && git add src/generated/serbian_holidays.json'
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]

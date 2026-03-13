@@ -10,6 +10,18 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  snapshot:
+    name: Verify holiday snapshot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Verify holiday snapshot is up to date
+        run: |
+          make holidays
+          git diff --exit-code src/generated/serbian_holidays.json
+
   check:
     name: Check (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
