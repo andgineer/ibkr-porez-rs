@@ -22,3 +22,6 @@ pub mod storage;
 pub mod storage_flex;
 pub mod sync;
 pub mod tax;
+
+#[allow(clippy::missing_panics_doc, clippy::must_use_candidate)]
+pub mod gui;

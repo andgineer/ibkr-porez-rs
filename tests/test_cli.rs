@@ -81,11 +81,14 @@ fn export_flex_stdout_flag() {
 
 #[test]
 fn no_subcommand_dispatches_to_gui() {
-    let output = cmd().output().expect("failed to run");
+    let output = cmd()
+        .env("IBKR_POREZ_DRY_RUN", "1")
+        .output()
+        .expect("failed to run");
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
-        stdout.contains("GUI") || stderr.contains("GUI binary not found"),
+        stdout.contains("GUI") || stderr.contains("GUI") || stderr.contains("GUI binary not found"),
         "expected GUI dispatch attempt, got stdout={stdout:?} stderr={stderr:?}"
     );
 }

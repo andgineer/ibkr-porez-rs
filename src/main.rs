@@ -213,18 +213,41 @@ fn main() {
 }
 
 fn launch_gui() -> anyhow::Result<()> {
-    let gui_bin = std::env::current_exe()?
+    let exe_dir = std::env::current_exe()?
         .parent()
-        .map_or_else(|| PathBuf::from("gui"), |p| p.join("gui"));
+        .map(std::path::Path::to_path_buf)
+        .unwrap_or_default();
 
-    if gui_bin.exists() {
-        let status = process::Command::new(&gui_bin).status()?;
-        if !status.success() {
-            std::process::exit(status.code().unwrap_or(1));
-        }
-        Ok(())
-    } else {
+    let gui_name = if cfg!(windows) { "gui.exe" } else { "gui" };
+    let gui_bin = exe_dir.join(gui_name);
+
+    if !gui_bin.exists() {
         eprintln!("GUI binary not found. Run with a subcommand or use --help.");
         process::exit(1);
     }
+
+    eprintln!("Starting GUI...");
+
+    let mut cmd = process::Command::new(&gui_bin);
+    cmd.stdin(process::Stdio::null())
+        .stdout(process::Stdio::null())
+        .stderr(process::Stdio::null());
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        cmd.process_group(0);
+    }
+
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
+        cmd.creation_flags(CREATE_NEW_PROCESS_GROUP);
+    }
+
+    cmd.spawn()?;
+
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    Ok(())
 }
