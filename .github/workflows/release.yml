@@ -194,7 +194,7 @@ jobs:
         run: |
           dotnet tool install --global wix
           $env:PATH = "$env:USERPROFILE\.dotnet\tools;$env:PATH"
-          wix extension add WixToolset.UI.wixext
+          wix extension add WixToolset.UI.wixext/6.0.2
 
       - name: Build MSI
         shell: pwsh
