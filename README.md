@@ -1,64 +1,21 @@
 # ibkr-porez
 
-Serbian tax reporting for Interactive Brokers -- Rust rewrite of
-[ibkr-porez (Python)](https://github.com/andgineer/ibkr-porez).
+Automated PPDG-3R and PP-OPO tax reports generation for Interactive Brokers.
+It automatically fetches your data and generates a ready-to-upload XML files with all prices converted to RSD.
 
-Functionally and database compatible with the Python version -- you can switch
-between them without data loss.
+# Quick Start
 
-**[Documentation](https://andgineer.github.io/ibkr-porez-rs/)**
+Graphical installers are available for Windows and macOS.
 
-## Migration Status
+[Install ibkr-porez](https://andgineer.github.io/ibkr-porez-rs/installation/)
 
-- [x] Models and storage (Python-compatible JSON)
-- [x] IBKR API clients (Flex Query XML, CSV import)
-- [x] NBS exchange rate client (with holiday calendar)
-- [x] Tax calculations (FIFO, 10-year exemption)
-- [x] PPDG-3R report generation (capital gains XML)
-- [x] PP-OPO report generation (capital income XML)
-- [x] CLI commands (clap derive mode)
-- [x] GUI (egui/eframe, glow backend)
-- [x] Packaging and installers (macOS PKG, Windows MSI)
+If you use the graphical interface, configure your data (the `Config` button),
+then just use `Sync` to refresh data and create declarations.
 
-## Installation
+If CLI is your native language (AI agents and brave humans), follow
+[CLI documentation](https://andgineer.github.io/ibkr-porez/).
 
-Download a prebuilt binary from the
-[releases page](https://github.com/andgineer/ibkr-porez-rs/releases),
-or install from source:
-
-```sh
-cargo install ibkr-porez
-```
-
-## Quick Start
-
-```sh
-# Configure personal data and IBKR access
-ibkr-porez config
-
-# Fetch latest data from IBKR and sync NBS exchange rates
-ibkr-porez fetch
-
-# Import historical CSV data (for transactions older than 1 year)
-ibkr-porez import /path/to/activity_statement.csv
-
-# Fetch data + create all due declarations
-ibkr-porez sync
-
-# Generate a specific tax report
-ibkr-porez report
-
-# List declarations
-ibkr-porez list
-
-# Submit / pay / export a declaration
-ibkr-porez submit <id>
-ibkr-porez pay <id>
-ibkr-porez export <id>
-```
-
-See the full [usage guide](https://andgineer.github.io/ibkr-porez-rs/en/usage.html)
-for all commands and options.
+---
 
 ## Development
 

@@ -156,8 +156,9 @@ jobs:
             > pkg-scripts/postinstall
           chmod +x pkg-scripts/postinstall
 
-          # Build PKG using --component for proper .app bundle handling
-          pkgbuild --component "staging/IBKR Porez.app" \
+          # Build PKG (--root avoids --component's relocation behavior
+          # which silently redirects to an existing bundle location)
+          pkgbuild --root staging \
             --install-location /Applications \
             --identifier engineer.sorokin.ibkr-porez \
             --version "$VERSION" \

@@ -2,22 +2,22 @@
 
 # Instalacija
 
-## Grafički instalater (samo GUI, bez CLI)
+## Instalater (GUI + CLI)
 
-Ako vam je potrebna samo grafička aplikacija i ne treba vam komandna linija, preuzmite gotov instalater sa stranice izdanja:
+Preuzmite gotov instalater sa stranice izdanja:
 
 **[https://github.com/andgineer/ibkr-porez-rs/releases](https://github.com/andgineer/ibkr-porez-rs/releases)**
 
+Instalater uključuje grafičku aplikaciju (GUI) i komandu `ibkr-porez` za terminal (CLI).
+
 ### macOS
 
-Preuzmite najnoviji `.dmg` fajl.
-Pošto aplikacija nije potpisana Apple sertifikatom, macOS može da je blokira pri prvom otvaranju:
-
+Preuzmite najnoviji `.pkg` fajl.
+Pošto instalater nije potpisan Apple sertifikatom, macOS će ga blokirati pri otvaranju.
 > _"IBKR Porez" je oštećen i ne može da se otvori. Treba ga premestiti u smeće._
-
 **Ne premeštajte u smeće.** Umesto toga:
 
-1. Otvorite **System Settings -> Privacy & Security**
+1. Otvorite **System Settings → Privacy & Security**
 2. Pri dnu odeljka Security pojaviće se poruka o blokiranoj aplikaciji — kliknite **Open Anyway**
 3. U sledećem dijalogu potvrdite otvaranje
 
@@ -35,7 +35,7 @@ Pošto instalater nije digitalno potpisan, Windows može prikazati bezbednosna u
 Ako pregledač blokira preuzimanje (na primer u Microsoft Edge):
 1. Otvorite panel preuzimanja u pregledaču (`Ctrl+J`)
 2. Pronađite blokirano `.msi` preuzimanje
-3. Kliknite **Keep** -> **Show more** -> **Keep anyway**
+3. Kliknite **Keep** → **Show more** → **Keep anyway**
 
 Pri pokretanju instalatera, Windows može prikazati poruku **Windows protected your PC**:
 1. Kliknite **More info**
@@ -44,19 +44,22 @@ Pri pokretanju instalatera, Windows može prikazati poruku **Windows protected y
 Može se pojaviti i User Account Control dijalog sa porukom **Unknown publisher**.
 Ako je fajl preuzet sa zvanične stranice izdanja, kliknite **Yes** za nastavak.
 
-Nakon instalacije, aplikacija bi trebalo da se pokreće normalno.
+Nakon instalacije:
+- **IBKR Porez** će se pojaviti u Start meniju
+- Komanda `ibkr-porez` biće dostupna u terminalu (možda će biti potrebno ponovo pokrenuti terminal)
 
 ---
 
-## Preuzimanje gotovog binarnog fajla (CLI)
+## Preuzimanje gotovog binarnog fajla
 
-Preuzmite binarni fajl za vašu platformu sa stranice izdanja:
+Takođe možete preuzeti binarne fajlove za vašu platformu sa stranice izdanja:
 
 **[https://github.com/andgineer/ibkr-porez-rs/releases](https://github.com/andgineer/ibkr-porez-rs/releases)**
 
-Raspakujte arhivu i stavite `ibkr-porez` binarni fajl negde u vaš `PATH`.
+Arhiva sadrži oba binarna fajla: `ibkr-porez` (CLI) i `gui` (GUI).
+Raspakujte arhivu i stavite fajlove negde u vaš `PATH`.
 
-## Instalacija iz izvornog koda (CLI + GUI)
+## Instalacija iz izvornog koda
 
 Ako imate instaliran Rust:
 
