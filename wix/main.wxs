@@ -19,18 +19,20 @@
     <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
 
     <StandardDirectory Id="LocalAppDataFolder">
-      <Directory Id="INSTALLDIR" Name="IBKR Porez">
+      <Directory Id="ProgramsFolder" Name="Programs">
+        <Directory Id="INSTALLDIR" Name="IBKR Porez">
         <Component Id="CliBinary" Guid="*">
           <File Id="CliExe" Source="staging\ibkr-porez.exe" KeyPath="yes" />
           <Environment Id="PATH" Name="PATH" Value="[INSTALLDIR]"
                        Permanent="no" Part="last" Action="set" System="no" />
         </Component>
         <Component Id="GuiBinary" Guid="*">
-          <File Id="GuiExe" Source="staging\gui.exe" KeyPath="yes" />
+          <File Id="GuiExe" Source="staging\ibkr-porez-gui.exe" KeyPath="yes" />
         </Component>
         <Component Id="License" Guid="*">
           <File Id="LicenseFile" Source="staging\LICENSE.txt" KeyPath="yes" />
         </Component>
+        </Directory>
       </Directory>
     </StandardDirectory>
 
@@ -38,7 +40,7 @@
       <Directory Id="ApplicationProgramsFolder" Name="IBKR Porez">
         <Component Id="StartMenuShortcut" Guid="*">
           <Shortcut Id="GuiShortcut" Name="IBKR Porez"
-                    Target="[INSTALLDIR]gui.exe" WorkingDirectory="INSTALLDIR"
+                    Target="[INSTALLDIR]ibkr-porez-gui.exe" WorkingDirectory="INSTALLDIR"
                     Icon="AppIcon.ico" />
           <RemoveFolder Id="CleanUpShortcut" On="uninstall" />
           <RegistryValue Root="HKCU" Key="Software\IBKR Porez" Name="installed"

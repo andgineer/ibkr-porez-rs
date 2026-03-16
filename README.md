@@ -34,7 +34,7 @@ cargo build --release --features gui # optimized, stripped
 
 Two binaries are produced (when built with `--features gui`):
 - `target/release/ibkr-porez` -- CLI (also launches GUI when run without arguments)
-- `target/release/gui` -- GUI
+- `target/release/ibkr-porez-gui` -- GUI
 
 On Linux, building the GUI requires X11/Wayland and GTK development libraries:
 

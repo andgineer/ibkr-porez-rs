@@ -218,7 +218,11 @@ fn launch_gui() -> anyhow::Result<()> {
         .map(std::path::Path::to_path_buf)
         .unwrap_or_default();
 
-    let gui_name = if cfg!(windows) { "gui.exe" } else { "gui" };
+    let gui_name = if cfg!(windows) {
+        "ibkr-porez-gui.exe"
+    } else {
+        "ibkr-porez-gui"
+    };
     let gui_bin = exe_dir.join(gui_name);
 
     if !gui_bin.exists() {

@@ -56,7 +56,7 @@ You can also download binaries for your platform from the releases page:
 
 **[https://github.com/andgineer/ibkr-porez-rs/releases](https://github.com/andgineer/ibkr-porez-rs/releases)**
 
-The archive contains both binaries: `ibkr-porez` (CLI) and `gui` (GUI).
+The archive contains both binaries: `ibkr-porez` (CLI) and `ibkr-porez-gui` (GUI).
 Extract the archive and place the files somewhere in your `PATH`.
 
 ## Install from Source

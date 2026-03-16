@@ -56,7 +56,7 @@
 
 **[https://github.com/andgineer/ibkr-porez-rs/releases](https://github.com/andgineer/ibkr-porez-rs/releases)**
 
-Архів містить обидва бінарні файли: `ibkr-porez` (CLI) та `gui` (GUI).
+Архів містить обидва бінарні файли: `ibkr-porez` (CLI) та `ibkr-porez-gui` (GUI).
 Розпакуйте архів і помістіть файли в директорію, що є в `PATH`.
 
 ## Збірка з вихідного коду

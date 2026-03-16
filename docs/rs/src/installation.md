@@ -56,7 +56,7 @@ Takođe možete preuzeti binarne fajlove za vašu platformu sa stranice izdanja:
 
 **[https://github.com/andgineer/ibkr-porez-rs/releases](https://github.com/andgineer/ibkr-porez-rs/releases)**
 
-Arhiva sadrži oba binarna fajla: `ibkr-porez` (CLI) i `gui` (GUI).
+Arhiva sadrži oba binarna fajla: `ibkr-porez` (CLI) i `ibkr-porez-gui` (GUI).
 Raspakujte arhivu i stavite fajlove negde u vaš `PATH`.
 
 ## Instalacija iz izvornog koda

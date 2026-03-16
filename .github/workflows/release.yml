@@ -85,8 +85,8 @@ jobs:
           ARCHIVE="ibkr-porez-${VERSION}-${{ matrix.target }}.tar.gz"
           mkdir staging
           cp target/${{ matrix.target }}/release/ibkr-porez staging/
-          cp target/${{ matrix.target }}/release/gui staging/
-          strip staging/ibkr-porez staging/gui
+          cp target/${{ matrix.target }}/release/ibkr-porez-gui staging/
+          strip staging/ibkr-porez staging/ibkr-porez-gui
           cp LICENSE.txt staging/
           tar -czf "$ARCHIVE" -C staging .
           echo "ARCHIVE=$ARCHIVE" >> "$GITHUB_ENV"
@@ -99,7 +99,7 @@ jobs:
           ARCHIVE="ibkr-porez-${VERSION}-${{ matrix.target }}.zip"
           mkdir staging
           cp target/${{ matrix.target }}/release/ibkr-porez.exe staging/
-          cp target/${{ matrix.target }}/release/gui.exe staging/
+          cp target/${{ matrix.target }}/release/ibkr-porez-gui.exe staging/
           cp LICENSE.txt staging/
           cd staging && 7z a "../$ARCHIVE" . && cd ..
           echo "ARCHIVE=$ARCHIVE" >> "$GITHUB_ENV"
@@ -133,15 +133,15 @@ jobs:
 
           # Create universal binaries (lipo does not preserve +x)
           mkdir -p universal
-          lipo -create -output universal/gui aarch64/gui x86_64/gui
+          lipo -create -output universal/ibkr-porez-gui aarch64/ibkr-porez-gui x86_64/ibkr-porez-gui
           lipo -create -output universal/ibkr-porez \
             aarch64/ibkr-porez x86_64/ibkr-porez
-          chmod +x universal/gui universal/ibkr-porez
+          chmod +x universal/ibkr-porez-gui universal/ibkr-porez
 
           # Create .app bundle
           APP="staging/IBKR Porez.app/Contents"
           mkdir -p "$APP/MacOS" "$APP/Resources"
-          cp universal/gui universal/ibkr-porez "$APP/MacOS/"
+          cp universal/ibkr-porez-gui universal/ibkr-porez "$APP/MacOS/"
           cp icon/ibkr_porez.icns "$APP/Resources/AppIcon.icns"
           sed "s/VERSION/$VERSION/g" scripts/Info.plist.template \
             > "$APP/Info.plist"
