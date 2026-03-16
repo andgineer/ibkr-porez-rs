@@ -106,7 +106,7 @@ pub struct App {
     pub sort_column: SortColumn,
     pub sort_ascending: bool,
 
-    pub status_message: Option<(String, egui::Color32)>,
+    pub status_message: Option<(String, styles::MessageKind)>,
     pub warning_banner: Option<String>,
 
     pub bg_receiver: Option<mpsc::Receiver<BackgroundResult>>,
@@ -146,7 +146,7 @@ impl App {
                 "Transaction history is empty. If your trading history is over one year, \
                  import it via Import. This is important for correct stock sale tax calculation."
                     .to_string(),
-                styles::WARNING_TEXT,
+                styles::MessageKind::Warning,
             ))
         } else {
             None
@@ -248,7 +248,7 @@ impl App {
                         self.bulk_action.label(),
                         ids.len()
                     ),
-                    styles::SUCCESS_TEXT,
+                    styles::MessageKind::Success,
                 ));
                 self.selected.clear();
             }
@@ -362,7 +362,7 @@ impl App {
                             } else {
                                 "Sync complete: no new declarations".into()
                             };
-                            self.status_message = Some((msg, styles::SUCCESS_TEXT));
+                            self.status_message = Some((msg, styles::MessageKind::Success));
                             self.warning_banner = check_holiday_warning(&self.config);
                             if let Some(err) = r.income_error {
                                 self.error_dialog = Some(err);
@@ -386,7 +386,7 @@ impl App {
                                     "Import complete: {} inserted, {} updated ({} total)",
                                     r.inserted, r.updated, r.transaction_count
                                 ),
-                                styles::SUCCESS_TEXT,
+                                styles::MessageKind::Success,
                             ));
                         }
                         Err(e) => {
@@ -415,7 +415,7 @@ impl App {
                     match result {
                         Ok(path) => {
                             self.status_message =
-                                Some((format!("Exported to {path}"), styles::SUCCESS_TEXT));
+                                Some((format!("Exported to {path}"), styles::MessageKind::Success));
                         }
                         Err(e) => {
                             self.error_dialog = Some(e);
@@ -448,7 +448,7 @@ impl eframe::App for App {
             .show(ctx, |ui| {
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     ui.colored_label(
-                        egui::Color32::from_gray(140),
+                        ui.visuals().widgets.noninteractive.fg_stroke.color,
                         "Double-click a row to open details",
                     );
                 });
@@ -503,7 +503,7 @@ impl eframe::App for App {
                 .resizable(false)
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
                 .show(ctx, |ui| {
-                    ui.colored_label(styles::ERROR_TEXT, &msg);
+                    ui.colored_label(ui.visuals().error_fg_color, &msg);
                     ui.add_space(8.0);
                     if ui.button("OK").clicked() {
                         dismiss = true;

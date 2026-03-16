@@ -44,10 +44,12 @@ pub fn show(ctx: &egui::Context, app: &mut App) {
         .default_width(450.0)
         .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
         .show(ctx, |ui| {
+            ui.heading("Source File");
+            ui.add_space(4.0);
             ui.horizontal(|ui| {
                 ui.label("File:");
                 ui.text_edit_singleline(&mut dialog.file_path);
-                if ui.button("Browse...").clicked()
+                if ui.small_button("Browse...").clicked()
                     && let Some(path) = rfd::FileDialog::new()
                         .add_filter("All supported", &["csv", "xml"])
                         .add_filter("CSV", &["csv"])
@@ -58,17 +60,18 @@ pub fn show(ctx: &egui::Context, app: &mut App) {
                 }
             });
 
+            ui.add_space(12.0);
+            ui.heading("Format");
             ui.add_space(4.0);
             ui.horizontal(|ui| {
-                ui.label("Format:");
                 ui.radio_value(&mut dialog.file_type, FileType::Auto, "Auto");
                 ui.radio_value(&mut dialog.file_type, FileType::Csv, "CSV");
                 ui.radio_value(&mut dialog.file_type, FileType::Flex, "Flex XML");
             });
 
-            ui.add_space(4.0);
+            ui.add_space(12.0);
             ui.colored_label(
-                egui::Color32::from_gray(160),
+                ui.visuals().widgets.noninteractive.fg_stroke.color,
                 "Import is needed for transactions older than one year to calculate \
                  stock sale income correctly. Data within the last year is fetched by Sync.",
             );
@@ -78,7 +81,7 @@ pub fn show(ctx: &egui::Context, app: &mut App) {
                 "https://andgineer.github.io/ibkr-porez-rs/en/usage.html",
             );
 
-            ui.add_space(8.0);
+            ui.add_space(16.0);
             ui.horizontal(|ui| {
                 let can_import = !dialog.file_path.is_empty() && !dialog.busy;
                 ui.add_enabled_ui(can_import, |ui| {
@@ -89,12 +92,10 @@ pub fn show(ctx: &egui::Context, app: &mut App) {
                 if ui.button("Close").clicked() {
                     dismiss = true;
                 }
+                if dialog.busy {
+                    ui.spinner();
+                }
             });
-
-            if dialog.busy {
-                ui.add_space(4.0);
-                ui.spinner();
-            }
         });
 
     if do_import {

@@ -9,27 +9,43 @@ pub fn show(ui: &mut egui::Ui, app: &mut App) {
     toolbar(ui, app);
 
     if let Some(ref banner) = app.warning_banner {
-        ui.horizontal(|ui| {
-            let rect = ui.available_rect_before_wrap();
-            ui.painter().rect_filled(rect, 0.0, styles::WARNING_BG);
-            ui.colored_label(styles::WARNING_TEXT, banner);
-        });
-        ui.add_space(2.0);
+        egui::Frame::new()
+            .fill(ui.visuals().faint_bg_color)
+            .inner_margin(4.0)
+            .show(ui, |ui| {
+                ui.colored_label(ui.visuals().warn_fg_color, banner);
+            });
+        ui.add_space(4.0);
     }
 
     if let Some(ref text) = app.progress_text {
-        let time = ui.ctx().input(|i| i.time);
-        #[allow(clippy::cast_possible_truncation)]
-        let progress = (0.5 + 0.5 * (time * 2.0).sin()) as f32;
-        ui.add(
-            egui::ProgressBar::new(progress)
-                .text(text.as_str())
-                .animate(true),
-        );
+        egui::Frame::new()
+            .fill(ui.visuals().faint_bg_color)
+            .inner_margin(4.0)
+            .show(ui, |ui| {
+                let time = ui.ctx().input(|i| i.time);
+                #[allow(clippy::cast_possible_truncation)]
+                let progress = (0.5 + 0.5 * (time * 2.0).sin()) as f32;
+                ui.add(
+                    egui::ProgressBar::new(progress)
+                        .text(text.as_str())
+                        .animate(true),
+                );
+            });
         ui.add_space(4.0);
-    } else if let Some((ref msg, color)) = app.status_message {
-        ui.colored_label(color, msg);
-        ui.add_space(2.0);
+    } else if let Some((ref msg, kind)) = app.status_message {
+        egui::Frame::new()
+            .fill(ui.visuals().faint_bg_color)
+            .inner_margin(4.0)
+            .show(ui, |ui| match kind {
+                styles::MessageKind::Warning => {
+                    ui.colored_label(ui.visuals().warn_fg_color, msg);
+                }
+                styles::MessageKind::Success => {
+                    ui.label(msg);
+                }
+            });
+        ui.add_space(4.0);
     }
 
     filter_bar(ui, app);

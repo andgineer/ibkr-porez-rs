@@ -44,7 +44,7 @@ pub fn show(ctx: &egui::Context, app: &mut App) {
             ui.checkbox(&mut dialog.mark_paid, "Already paid");
             ui.add_space(4.0);
             ui.colored_label(
-                egui::Color32::from_gray(160),
+                ui.visuals().widgets.noninteractive.fg_stroke.color,
                 "Enter the assessed tax amount. Check 'Already paid' if payment is done.",
             );
             ui.add_space(8.0);
