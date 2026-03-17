@@ -15,6 +15,7 @@ Instalater uključuje grafičku aplikaciju (GUI) i komandu `ibkr-porez` za termi
 Preuzmite najnoviji `.pkg` fajl.
 Pošto instalater nije potpisan Apple sertifikatom, macOS će ga blokirati pri otvaranju.
 > _"IBKR Porez" je oštećen i ne može da se otvori. Treba ga premestiti u smeće._
+
 **Ne premeštajte u smeće.** Umesto toga:
 
 1. Otvorite **System Settings → Privacy & Security**

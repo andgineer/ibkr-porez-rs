@@ -501,10 +501,12 @@ impl eframe::App for App {
             egui::Window::new("Error")
                 .collapsible(false)
                 .resizable(false)
+                .default_width(350.0)
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
                 .show(ctx, |ui| {
-                    ui.colored_label(ui.visuals().error_fg_color, &msg);
-                    ui.add_space(8.0);
+                    ui.add_space(4.0);
+                    ui.label(&msg);
+                    ui.add_space(12.0);
                     if ui.button("OK").clicked() {
                         dismiss = true;
                     }

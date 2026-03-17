@@ -15,6 +15,7 @@ The installer includes both the graphical application (GUI) and the `ibkr-porez`
 Download the latest `.pkg` file.
 Because the installer is not signed with an Apple certificate, macOS will block it when you try to open it.
 > _"IBKR Porez" is damaged and can't be opened. You should move it to the Bin._
+
 **Do not move it to the Bin.** Instead:
 
 1. Open **System Settings → Privacy & Security**
