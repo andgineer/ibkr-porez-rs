@@ -78,7 +78,7 @@ pub fn show(ctx: &egui::Context, app: &mut App) {
             ui.add_space(4.0);
             ui.hyperlink_to(
                 "Import documentation",
-                "https://andgineer.github.io/ibkr-porez-rs/en/usage.html",
+                "https://andgineer.github.io/ibkr-porez/en/usage.html",
             );
 
             ui.add_space(16.0);

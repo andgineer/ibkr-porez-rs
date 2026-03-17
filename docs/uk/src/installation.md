@@ -6,7 +6,7 @@
 
 Завантажте готовий інсталятор зі сторінки релізів:
 
-**[https://github.com/andgineer/ibkr-porez-rs/releases](https://github.com/andgineer/ibkr-porez-rs/releases)**
+**[https://github.com/andgineer/ibkr-porez/releases](https://github.com/andgineer/ibkr-porez/releases)**
 
 Інсталятор встановлює графічний застосунок (GUI) та команду `ibkr-porez` для терміналу (CLI).
 
@@ -55,7 +55,7 @@
 
 Також можна завантажити бінарні файли для вашої платформи зі сторінки релізів:
 
-**[https://github.com/andgineer/ibkr-porez-rs/releases](https://github.com/andgineer/ibkr-porez-rs/releases)**
+**[https://github.com/andgineer/ibkr-porez/releases](https://github.com/andgineer/ibkr-porez/releases)**
 
 Архів містить обидва бінарні файли: `ibkr-porez` (CLI) та `ibkr-porez-gui` (GUI).
 Розпакуйте архів і помістіть файли в директорію, що є в `PATH`.

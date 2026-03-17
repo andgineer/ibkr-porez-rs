@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.12"
-# dependencies = ["ibkr-porez @ git+https://github.com/andgineer/ibkr-porez.git"]
+# dependencies = ["ibkr-porez @ git+https://github.com/andgineer/ibkr-porez-py.git"]
 # ///
 """Cross-language compatibility test: verify Python can read Rust-written JSON files.
 

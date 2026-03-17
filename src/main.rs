@@ -12,7 +12,7 @@ mod cli;
     name = "ibkr-porez",
     version,
     about = "Serbian tax reporting for Interactive Brokers",
-    after_help = "Docs: https://andgineer.github.io/ibkr-porez-rs/en/\n\
+    after_help = "Docs: https://andgineer.github.io/ibkr-porez/en/\n\
                   Run without a command to launch the GUI."
 )]
 struct Cli {

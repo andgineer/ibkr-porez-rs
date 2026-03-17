@@ -28,7 +28,7 @@ pub fn run() -> Result<()> {
     println!("Config file: {}", style(config_path.display()).dim());
     println!(
         "Docs: {}\n",
-        style("https://andgineer.github.io/ibkr-porez-rs/en/usage.html").cyan()
+        style("https://andgineer.github.io/ibkr-porez/en/usage.html").cyan()
     );
 
     if is_config_empty(&old_cfg) {
@@ -131,12 +131,12 @@ fn field_values(cfg: &UserConfig) -> Vec<String> {
 
 fn prompt_all_fields(old: &UserConfig) -> Result<UserConfig> {
     let ibkr_token = prompt_text(
-        "IBKR Flex Token (see https://andgineer.github.io/ibkr-porez-rs/en/ibkr.html)",
+        "IBKR Flex Token (see https://andgineer.github.io/ibkr-porez/en/ibkr.html)",
         &old.ibkr_token,
     )?;
 
     let ibkr_query_id = prompt_text(
-        "IBKR Flex Query ID (see https://andgineer.github.io/ibkr-porez-rs/en/ibkr.html)",
+        "IBKR Flex Query ID (see https://andgineer.github.io/ibkr-porez/en/ibkr.html)",
         &old.ibkr_query_id,
     )?;
 
@@ -144,7 +144,7 @@ fn prompt_all_fields(old: &UserConfig) -> Result<UserConfig> {
     let full_name = prompt_text("Full Name (as registered)", &old.full_name)?;
     let address = prompt_text("Address", &old.address)?;
     let city_code = prompt_text(
-        "City/Municipality Code (see https://andgineer.github.io/ibkr-porez-rs/en/usage.html)",
+        "City/Municipality Code (see https://andgineer.github.io/ibkr-porez/en/usage.html)",
         &old.city_code,
     )?;
     let phone = prompt_text("Phone", &old.phone)?;
@@ -176,13 +176,13 @@ fn prompt_single_field(cfg: &mut UserConfig, idx: usize) -> Result<()> {
     match idx {
         0 => {
             cfg.ibkr_token = prompt_text(
-                "IBKR Flex Token (see https://andgineer.github.io/ibkr-porez-rs/en/ibkr.html)",
+                "IBKR Flex Token (see https://andgineer.github.io/ibkr-porez/en/ibkr.html)",
                 &cfg.ibkr_token,
             )?;
         }
         1 => {
             cfg.ibkr_query_id = prompt_text(
-                "IBKR Flex Query ID (see https://andgineer.github.io/ibkr-porez-rs/en/ibkr.html)",
+                "IBKR Flex Query ID (see https://andgineer.github.io/ibkr-porez/en/ibkr.html)",
                 &cfg.ibkr_query_id,
             )?;
         }
@@ -191,7 +191,7 @@ fn prompt_single_field(cfg: &mut UserConfig, idx: usize) -> Result<()> {
         4 => cfg.address = prompt_text("Address", &cfg.address)?,
         5 => {
             cfg.city_code = prompt_text(
-                "City/Municipality Code (see https://andgineer.github.io/ibkr-porez-rs/en/usage.html)",
+                "City/Municipality Code (see https://andgineer.github.io/ibkr-porez/en/usage.html)",
                 &cfg.city_code,
             )?;
         }
@@ -206,8 +206,8 @@ fn prompt_single_field(cfg: &mut UserConfig, idx: usize) -> Result<()> {
 
 fn field_hint(idx: usize) -> &'static str {
     match idx {
-        0 | 1 => "(see https://andgineer.github.io/ibkr-porez-rs/en/ibkr.html)",
-        5 => "(see https://andgineer.github.io/ibkr-porez-rs/en/usage.html)",
+        0 | 1 => "(see https://andgineer.github.io/ibkr-porez/en/ibkr.html)",
+        5 => "(see https://andgineer.github.io/ibkr-porez/en/usage.html)",
         _ => "",
     }
 }

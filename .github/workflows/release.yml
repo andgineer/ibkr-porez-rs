@@ -252,7 +252,7 @@ jobs:
         run: |
           V=${{ env.VERSION }}
           TAG=${{ github.ref_name }}
-          BASE="https://github.com/andgineer/ibkr-porez-rs/releases/download/${TAG}/ibkr-porez-${V}"
+          BASE="https://github.com/andgineer/ibkr-porez/releases/download/${TAG}/ibkr-porez-${V}"
           cat > body.md << EOF
           ## Downloads
 
@@ -273,7 +273,7 @@ jobs:
           | **Linux** x86_64 | [.tar.gz](${BASE}-x86_64-unknown-linux-gnu.tar.gz) |
 
           ---
-          [Installation instructions](https://andgineer.github.io/ibkr-porez-rs/en/installation.html)
+          [Installation instructions](https://andgineer.github.io/ibkr-porez/en/installation.html)
           EOF
 
       - name: Create release

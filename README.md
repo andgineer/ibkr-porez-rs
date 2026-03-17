@@ -7,13 +7,13 @@ It automatically fetches your data and generates a ready-to-upload XML files wit
 
 Graphical installers are available for Windows and macOS.
 
-[Install ibkr-porez](https://andgineer.github.io/ibkr-porez-rs/en/installation.html)
+[Install ibkr-porez](https://andgineer.github.io/ibkr-porez/en/installation.html)
 
 If you use the graphical interface, configure your data (the `Config` button),
 then just use `Sync` to refresh data and create declarations.
 
 If CLI is your native language (AI agents and brave humans), follow
-[CLI documentation](https://andgineer.github.io/ibkr-porez-rs/).
+[CLI documentation](https://andgineer.github.io/ibkr-porez/).
 
 ---
 
@@ -88,7 +88,7 @@ and Windows, then publishes them as a GitHub Release.
 
 Docs are built with [mdBook](https://rust-lang.github.io/mdBook/) (5 languages)
 and deployed automatically to
-[GitHub Pages](https://andgineer.github.io/ibkr-porez-rs/) on push to `main`.
+[GitHub Pages](https://andgineer.github.io/ibkr-porez/) on push to `main`.
 
 ```sh
 # Build locally

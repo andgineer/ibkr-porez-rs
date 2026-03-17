@@ -8,4 +8,4 @@ src = "src"
 build-dir = "../../site/en"
 
 [output.html]
-git-repository-url = "https://github.com/andgineer/ibkr-porez-rs"
+git-repository-url = "https://github.com/andgineer/ibkr-porez"

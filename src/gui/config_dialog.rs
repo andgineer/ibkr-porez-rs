@@ -54,7 +54,7 @@ pub fn show(ctx: &egui::Context, app: &mut App) {
                 field(ui, "Flex Query ID", &mut dialog.config.ibkr_query_id);
                 ui.hyperlink_to(
                     "How to get Flex Token and Flex Query ID in IBKR",
-                    "https://andgineer.github.io/ibkr-porez-rs/en/ibkr.html",
+                    "https://andgineer.github.io/ibkr-porez/en/ibkr.html",
                 );
 
                 ui.add_space(12.0);

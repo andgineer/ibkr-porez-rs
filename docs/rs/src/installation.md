@@ -6,7 +6,7 @@
 
 Preuzmite gotov instalater sa stranice izdanja:
 
-**[https://github.com/andgineer/ibkr-porez-rs/releases](https://github.com/andgineer/ibkr-porez-rs/releases)**
+**[https://github.com/andgineer/ibkr-porez/releases](https://github.com/andgineer/ibkr-porez/releases)**
 
 Instalater uključuje grafičku aplikaciju (GUI) i komandu `ibkr-porez` za terminal (CLI).
 
@@ -55,7 +55,7 @@ Nakon instalacije:
 
 Takođe možete preuzeti binarne fajlove za vašu platformu sa stranice izdanja:
 
-**[https://github.com/andgineer/ibkr-porez-rs/releases](https://github.com/andgineer/ibkr-porez-rs/releases)**
+**[https://github.com/andgineer/ibkr-porez/releases](https://github.com/andgineer/ibkr-porez/releases)**
 
 Arhiva sadrži oba binarna fajla: `ibkr-porez` (CLI) i `ibkr-porez-gui` (GUI).
 Raspakujte arhivu i stavite fajlove negde u vaš `PATH`.
