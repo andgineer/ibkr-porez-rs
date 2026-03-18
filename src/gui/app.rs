@@ -138,7 +138,7 @@ impl Default for App {
 impl App {
     pub fn new() -> Self {
         let config = app_config::load_config();
-        let storage = Storage::new();
+        let storage = Storage::with_config(&config);
         let declarations = load_filtered(&storage, FilterScope::Active);
 
         let warning_banner = check_holiday_warning(&config);
@@ -180,7 +180,7 @@ impl App {
     }
 
     pub fn reload_storage(&mut self) {
-        self.storage = Storage::with_dir(self.storage.data_dir());
+        self.storage = Storage::with_config(&self.config);
     }
 
     pub fn refresh_declarations(&mut self) {
@@ -312,7 +312,7 @@ impl App {
 
         std::thread::spawn(move || {
             let output_dir = app_config::get_effective_output_dir_path(&config);
-            let storage = Storage::new();
+            let storage = Storage::with_config(&config);
             let manager = DeclarationManager::new(&storage);
             let result = match manager.export(&id, &output_dir) {
                 Ok(r) => {
@@ -339,7 +339,7 @@ impl App {
         self.bg_receiver = Some(rx);
 
         std::thread::spawn(move || {
-            let storage = Storage::new();
+            let storage = Storage::with_config(&config);
             let mut holidays = crate::holidays::HolidayCalendar::load_embedded();
             let data_dir = app_config::get_effective_data_dir_path(&config);
             holidays.merge_file(&data_dir);

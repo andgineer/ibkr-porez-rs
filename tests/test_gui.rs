@@ -66,8 +66,12 @@ fn app_in_dir(decls: Vec<Declaration>, tmp: &tempfile::TempDir) -> App {
     for d in &decls {
         storage.save_declaration(d).unwrap();
     }
+    let config = UserConfig {
+        data_dir: Some(tmp.path().to_string_lossy().into_owned()),
+        ..UserConfig::default()
+    };
     App {
-        config: UserConfig::default(),
+        config,
         storage,
         declarations: decls,
         selected: HashSet::new(),
@@ -479,6 +483,63 @@ fn refresh_prunes_stale_selection() {
     app.refresh_declarations();
 
     assert!(app.selected.contains("keep"));
+}
+
+// ── Storage / config wiring ──────────────────────────────────
+
+#[test]
+fn reload_storage_follows_config_data_dir_change() {
+    let tmp1 = tempfile::TempDir::new().unwrap();
+    let tmp2 = tempfile::TempDir::new().unwrap();
+
+    let mut app = app_in_dir(vec![], &tmp1);
+    assert_eq!(app.storage.data_dir(), tmp1.path());
+
+    app.config.data_dir = Some(tmp2.path().to_string_lossy().into_owned());
+    app.reload_storage();
+
+    assert_eq!(
+        app.storage.data_dir(),
+        tmp2.path(),
+        "reload_storage must follow config.data_dir, not keep the old path"
+    );
+}
+
+#[test]
+fn refresh_after_config_change_sees_new_data() {
+    let tmp_old = tempfile::TempDir::new().unwrap();
+    let tmp_new = tempfile::TempDir::new().unwrap();
+
+    let mut app = app_in_dir(
+        vec![make_decl("old-decl", DeclarationStatus::Draft)],
+        &tmp_old,
+    );
+    assert_eq!(app.declarations.len(), 1);
+
+    let new_storage = Storage::with_dir(tmp_new.path());
+    new_storage
+        .save_declaration(&make_decl("new-1", DeclarationStatus::Draft))
+        .unwrap();
+    new_storage
+        .save_declaration(&make_decl("new-2", DeclarationStatus::Draft))
+        .unwrap();
+
+    app.config.data_dir = Some(tmp_new.path().to_string_lossy().into_owned());
+    app.refresh_declarations();
+
+    assert_eq!(
+        app.declarations.len(),
+        2,
+        "after config.data_dir change, refresh must load from the new directory"
+    );
+    let ids: Vec<&str> = app
+        .declarations
+        .iter()
+        .map(|d| d.declaration_id.as_str())
+        .collect();
+    assert!(ids.contains(&"new-1"));
+    assert!(ids.contains(&"new-2"));
+    assert!(!ids.contains(&"old-decl"));
 }
 
 // ── Background polling ───────────────────────────────────────

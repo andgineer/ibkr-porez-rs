@@ -50,6 +50,15 @@ cargo test                 # CLI and library tests
 cargo test --features gui  # all tests including GUI unit tests
 ```
 
+### IDE Setup (VS Code / Cursor)
+
+The `gui` feature is not enabled by default, so rust-analyzer won't index GUI code
+out of the box. Add this to your workspace settings (`.vscode/settings.json`):
+
+```json
+{ "rust-analyzer.cargo.features": ["gui"] }
+```
+
 ### Linting and Formatting
 
 ```sh
