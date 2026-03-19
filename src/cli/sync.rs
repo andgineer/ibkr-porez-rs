@@ -89,8 +89,8 @@ pub fn run(output_dir: Option<PathBuf>, lookback: Option<i64>) -> Result<()> {
     println!();
     output::dim("Use `ibkr-porez list` to see all declarations.");
     output::dim("Use `ibkr-porez show <ID>` for details.");
-    output::dim("Use `ibkr-porez submit <ID>` to mark as submitted.");
-    output::dim("Use `ibkr-porez pay <ID>` to mark as paid.");
+    output::dim("Use `ibkr-porez submit <ID> [<ID> ...]` to mark as submitted.");
+    output::dim("Use `ibkr-porez pay <ID> [<ID> ...]` to mark as paid.");
 
     Ok(())
 }

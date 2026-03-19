@@ -73,7 +73,7 @@ ibkr-porez sync
 > 💡 Ако сте покренули `sync` први пут и она је креирала пријаве које сте већ подали пре почетка коришћења апликације,
 > можете брзо да их све означите као плаћене и уклоните из излаза [list](#списак-пријава-list):
 > ```bash
-> ibkr-porez list --status submitted -1 | xargs -I {} ibkr-porez pay {}
+> ibkr-porez list --status submitted -1 | ibkr-porez pay
 > ```
 
 ## Приказ статистике (stat)
@@ -140,7 +140,7 @@ ibkr-porez list --status draft -1
 
 ```bash
 # Поднети све нацрте
-ibkr-porez list --status draft -1 | xargs -I {} ibkr-porez submit {}
+ibkr-porez list --status draft -1 | ibkr-porez submit
 ```
 
 ### Преглед детаља пријаве (show)
@@ -162,7 +162,7 @@ ibkr-porez show <declaration_id>
 ### Подношење пријаве (submit)
 
 ```bash
-ibkr-porez submit <declaration_id>
+ibkr-porez submit <id> [<id> ...]
 ```
 
 Означава пријаву као поднету (увезену на порески портал).
@@ -177,8 +177,8 @@ ibkr-porez submit <declaration_id>
 ### Плаћање пријаве (pay)
 
 ```bash
-ibkr-porez pay <declaration_id>
-ibkr-porez pay <declaration_id> --tax 1234.56
+ibkr-porez pay <id> [<id> ...]
+ibkr-porez pay <id> --tax 1234.56
 ```
 
 Означава пријаву као завршену (`finalized`) и чува датум плаћања.
@@ -220,10 +220,10 @@ ibkr-porez export <declaration_id> -o /path/to/output
 
 ```bash
 # Вратити на нацрт (подразумевано)
-ibkr-porez revert <declaration_id>
+ibkr-porez revert <id> [<id> ...]
 
 # Вратити на поднету
-ibkr-porez revert <declaration_id> --to submitted
+ibkr-porez revert <id> [<id> ...] --to submitted
 ```
 
 Враћа статус пријаве.

@@ -235,35 +235,29 @@ impl App {
     pub fn apply_bulk_action(&mut self) {
         let manager = DeclarationManager::new(&self.storage);
         let ids: Vec<String> = self.selected.iter().cloned().collect();
+        let id_refs: Vec<&str> = ids.iter().map(String::as_str).collect();
 
-        let mut ok_count = 0usize;
-        let mut errors: Vec<String> = Vec::new();
+        let bulk_action = self.bulk_action;
+        let result = manager.apply_each(&id_refs, |m, id| match bulk_action {
+            BulkAction::Submit => m.submit(&[id]),
+            BulkAction::Pay => m.pay(&[id]),
+            BulkAction::Revert => m.revert(&[id]),
+        });
 
-        for id in &ids {
-            let result = match self.bulk_action {
-                BulkAction::Submit => manager.submit(&[id.as_str()]),
-                BulkAction::Pay => manager.pay(&[id.as_str()]),
-                BulkAction::Revert => manager.revert(&[id.as_str()]),
-            };
-            match result {
-                Ok(()) => ok_count += 1,
-                Err(e) => errors.push(format!("{id}: {e}")),
-            }
-        }
-
-        if ok_count > 0 {
+        if result.ok_count > 0 {
             self.status_message = Some((
                 format!(
-                    "{} applied to {ok_count} declaration(s)",
+                    "{} applied to {} declaration(s)",
                     self.bulk_action.label(),
+                    result.ok_count,
                 ),
                 styles::MessageKind::Success,
             ));
         }
-        if !errors.is_empty() {
-            self.error_dialog = Some(errors.join("\n"));
+        if result.has_errors() {
+            self.error_dialog = Some(result.error_summary());
         }
-        if errors.is_empty() {
+        if !result.has_errors() {
             self.selected.clear();
         }
         self.refresh_declarations();

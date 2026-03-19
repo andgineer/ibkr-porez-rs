@@ -69,7 +69,7 @@ Zatim možete [Upravljati kreiranim prijavama](#upravljanje-prijavama).
 > 💡 Ako ste pokrenuli `sync` prvi put i ona je kreirala prijave koje ste već podali pre početka korišćenja aplikacije,
 > možete brzo da ih sve označite kao plaćene i uklonite iz izlaza [list](#spisak-prijava-list):
 > ```bash
-> ibkr-porez list --status submitted -1 | xargs -I {} ibkr-porez pay {}
+> ibkr-porez list --status submitted -1 | ibkr-porez pay
 > ```
 
 ## Prikaz statistike (`stat`)
@@ -134,7 +134,7 @@ ibkr-porez list --status draft -1
 Primer korišćenja u linux-stilu:
 ```bash
 # Podneti sve nacrte
-ibkr-porez list --status draft -1 | xargs -I {} ibkr-porez submit {}
+ibkr-porez list --status draft -1 | ibkr-porez submit
 ```
 
 ### Pregled detalja prijave (`show`)
@@ -155,7 +155,7 @@ Prikazuje:
 
 ### Podnošenje prijave (`submit`)
 ```bash
-ibkr-porez submit <declaration_id>
+ibkr-porez submit <id> [<id> ...]
 ```
 
 Označava prijavu kao podnetu (uvezenu na poreski portal).
@@ -169,8 +169,8 @@ Ponašanje zavisi od tipa prijave:
 
 ### Plaćanje prijave (`pay`)
 ```bash
-ibkr-porez pay <declaration_id>
-ibkr-porez pay <declaration_id> --tax 1234.56
+ibkr-porez pay <id> [<id> ...]
+ibkr-porez pay <id> --tax 1234.56
 ```
 
 Označava prijavu kao završenu (`finalized`) i čuva datum plaćanja.
@@ -209,10 +209,10 @@ Kopira XML i sve priložene fajlove ([attach](#prilozavanje-fajla-uz-prijavu-att
 ### Povratak statusa prijave (`revert`)
 ```bash
 # Vratiti na nacrt (podrazumevano)
-ibkr-porez revert <declaration_id>
+ibkr-porez revert <id> [<id> ...]
 
 # Vratiti na podnetu
-ibkr-porez revert <declaration_id> --to submitted
+ibkr-porez revert <id> [<id> ...] --to submitted
 ```
 
 Vraća status prijave.

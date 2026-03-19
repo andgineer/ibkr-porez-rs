@@ -98,10 +98,14 @@ enum Commands {
         month: Option<String>,
     },
     /// Mark declaration as submitted
-    Submit { declaration_id: String },
+    Submit {
+        /// Declaration ID(s); reads from stdin if omitted
+        declaration_id: Vec<String>,
+    },
     /// Mark declaration as paid
     Pay {
-        declaration_id: String,
+        /// Declaration ID(s); reads from stdin if omitted
+        declaration_id: Vec<String>,
         #[arg(long)]
         tax: Option<Decimal>,
     },
@@ -128,7 +132,8 @@ enum Commands {
     },
     /// Revert declaration to draft or submitted status
     Revert {
-        declaration_id: String,
+        /// Declaration ID(s); reads from stdin if omitted
+        declaration_id: Vec<String>,
         #[arg(long, default_value = "draft")]
         to: RevertTarget,
     },
@@ -181,11 +186,11 @@ fn main() {
             ticker,
             month,
         }) => cli::stat::run(year, ticker, month),
-        Some(Commands::Submit { declaration_id }) => cli::submit::run(&declaration_id),
+        Some(Commands::Submit { declaration_id }) => cli::submit::run(declaration_id),
         Some(Commands::Pay {
             declaration_id,
             tax,
-        }) => cli::pay::run(&declaration_id, tax),
+        }) => cli::pay::run(declaration_id, tax),
         Some(Commands::Assess {
             declaration_id,
             tax_due,
@@ -196,7 +201,7 @@ fn main() {
             output,
         }) => cli::export::run(&declaration_id, output),
         Some(Commands::ExportFlex { date, output }) => cli::export_flex::run(date, output),
-        Some(Commands::Revert { declaration_id, to }) => cli::revert::run(&declaration_id, to),
+        Some(Commands::Revert { declaration_id, to }) => cli::revert::run(declaration_id, to),
         Some(Commands::Attach {
             declaration_id,
             file_path,

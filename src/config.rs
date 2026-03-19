@@ -23,6 +23,9 @@ fn expand_tilde(path: &str) -> PathBuf {
 
 #[must_use]
 pub fn config_dir() -> PathBuf {
+    if let Ok(dir) = std::env::var("IBKR_POREZ_CONFIG_DIR") {
+        return PathBuf::from(dir);
+    }
     dirs::config_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join(APP_NAME)

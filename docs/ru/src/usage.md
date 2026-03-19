@@ -69,7 +69,7 @@ ibkr-porez sync
 > 💡 Если вы запустили `sync` в первый раз и она создала декларации которые вы уже подали до начала использования приложения
 > вы можете быстро пометить их все как оплаченные и убрать из выдачи [list](#список-деклараций-list):
 > ```bash
-> ibkr-porez list --status submitted -1 | xargs -I {} ibkr-porez pay {}
+> ibkr-porez list --status submitted -1 | ibkr-porez pay
 > ```
 
 ## Просмотр статистики (`stat`)
@@ -134,7 +134,7 @@ ibkr-porez list --status draft -1
 Пример использования в linux-стиле:
 ```bash
 # Отправить все черновики
-ibkr-porez list --status draft -1 | xargs -I {} ibkr-porez submit {}
+ibkr-porez list --status draft -1 | ibkr-porez submit
 ```
 
 ### Просмотр деталей декларации (`show`)
@@ -155,7 +155,7 @@ ibkr-porez show <declaration_id>
 
 ### Подача декларации (`submit`)
 ```bash
-ibkr-porez submit <declaration_id>
+ibkr-porez submit <id> [<id> ...]
 ```
 
 Отмечает декларацию как поданную (импортированную на налоговый портал).
@@ -169,8 +169,8 @@ ibkr-porez submit <declaration_id>
 
 ### Оплата декларации (`pay`)
 ```bash
-ibkr-porez pay <declaration_id>
-ibkr-porez pay <declaration_id> --tax 1234.56
+ibkr-porez pay <id> [<id> ...]
+ibkr-porez pay <id> --tax 1234.56
 ```
 
 Отмечает декларацию как завершенную (`finalized`) и сохраняет дату оплаты.
@@ -209,10 +209,10 @@ ibkr-porez export <declaration_id> -o /path/to/output
 ### Откат статуса декларации (`revert`)
 ```bash
 # Откатить к черновику (по умолчанию)
-ibkr-porez revert <declaration_id>
+ibkr-porez revert <id> [<id> ...]
 
 # Откатить к отправленной
-ibkr-porez revert <declaration_id> --to submitted
+ibkr-porez revert <id> [<id> ...] --to submitted
 ```
 
 Откатывает статус декларации.

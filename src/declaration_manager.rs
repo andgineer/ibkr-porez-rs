@@ -13,6 +13,27 @@ pub struct ExportResult {
     pub attachment_paths: Vec<String>,
 }
 
+pub struct BulkResult {
+    pub ok_count: usize,
+    pub errors: Vec<(String, String)>,
+}
+
+impl BulkResult {
+    #[must_use]
+    pub fn has_errors(&self) -> bool {
+        !self.errors.is_empty()
+    }
+
+    #[must_use]
+    pub fn error_summary(&self) -> String {
+        self.errors
+            .iter()
+            .map(|(id, msg)| format!("{id}: {msg}"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+}
+
 pub struct DeclarationManager<'a> {
     storage: &'a Storage,
 }
@@ -230,6 +251,26 @@ impl<'a> DeclarationManager<'a> {
         } else {
             format!("Assessment saved: {id} ({tax_due} RSD to pay)")
         }
+    }
+
+    pub fn apply_each<F>(&self, ids: &[&str], mut op: F) -> BulkResult
+    where
+        F: FnMut(&Self, &str) -> Result<()>,
+    {
+        let mut ok_count = 0;
+        let mut errors = Vec::new();
+        for id in ids {
+            match op(self, id) {
+                Ok(()) => ok_count += 1,
+                Err(e) => errors.push(((*id).to_string(), e.to_string())),
+            }
+        }
+        BulkResult { ok_count, errors }
+    }
+
+    #[must_use]
+    pub fn get_status(&self, id: &str) -> Option<DeclarationStatus> {
+        self.storage.get_declaration(id).map(|d| d.status)
     }
 
     fn get_or_err(&self, id: &str) -> Result<Declaration> {

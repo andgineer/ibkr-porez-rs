@@ -295,3 +295,79 @@ fn test_attach_and_detach_file() {
     let decl = storage.get_declaration("1").unwrap();
     assert!(!decl.attached_files.contains_key("doc.pdf"));
 }
+
+// ---- apply_each tests ----
+
+#[test]
+fn apply_each_all_succeed() {
+    let tmp = tempfile::TempDir::new().unwrap();
+    let storage = Storage::with_dir(tmp.path());
+    for id in ["a", "b", "c"] {
+        make_declaration(
+            &storage,
+            id,
+            DeclarationType::Ppdg3r,
+            DeclarationStatus::Draft,
+        );
+    }
+
+    let mgr = DeclarationManager::new(&storage);
+    let result = mgr.apply_each(&["a", "b", "c"], |m, id| m.submit(&[id]));
+
+    assert_eq!(result.ok_count, 3);
+    assert!(!result.has_errors());
+    assert!(result.errors.is_empty());
+}
+
+#[test]
+fn apply_each_mixed_results() {
+    let tmp = tempfile::TempDir::new().unwrap();
+    let storage = Storage::with_dir(tmp.path());
+    make_declaration(
+        &storage,
+        "ok",
+        DeclarationType::Ppdg3r,
+        DeclarationStatus::Draft,
+    );
+    make_declaration(
+        &storage,
+        "bad",
+        DeclarationType::Ppdg3r,
+        DeclarationStatus::Submitted,
+    );
+
+    let mgr = DeclarationManager::new(&storage);
+    let result = mgr.apply_each(&["ok", "bad"], |m, id| m.submit(&[id]));
+
+    assert_eq!(result.ok_count, 1);
+    assert!(result.has_errors());
+    assert_eq!(result.errors.len(), 1);
+    assert_eq!(result.errors[0].0, "bad");
+    assert!(result.errors[0].1.contains("not in Draft"));
+}
+
+#[test]
+fn apply_each_all_fail() {
+    let tmp = tempfile::TempDir::new().unwrap();
+    let storage = Storage::with_dir(tmp.path());
+
+    let mgr = DeclarationManager::new(&storage);
+    let result = mgr.apply_each(&["x", "y"], |m, id| m.submit(&[id]));
+
+    assert_eq!(result.ok_count, 0);
+    assert!(result.has_errors());
+    assert_eq!(result.errors.len(), 2);
+}
+
+#[test]
+fn apply_each_error_summary_format() {
+    let tmp = tempfile::TempDir::new().unwrap();
+    let storage = Storage::with_dir(tmp.path());
+
+    let mgr = DeclarationManager::new(&storage);
+    let result = mgr.apply_each(&["x", "y"], |m, id| m.submit(&[id]));
+
+    let summary = result.error_summary();
+    assert!(summary.contains("x:"));
+    assert!(summary.contains("y:"));
+}

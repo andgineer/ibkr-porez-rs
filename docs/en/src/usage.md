@@ -69,7 +69,7 @@ You can then [Manage created declarations](#declaration-management).
 > 💡 If you ran `sync` for the first time and it created declarations that you already submitted before starting to use the application,
 > you can quickly mark them all as paid and remove them from [list](#list-declarations-list) output:
 > ```bash
-> ibkr-porez list --status submitted -1 | xargs -I {} ibkr-porez pay {}
+> ibkr-porez list --status submitted -1 | ibkr-porez pay
 > ```
 
 ## View Statistics (`stat`)
@@ -134,7 +134,7 @@ ibkr-porez list --status draft -1
 Example usage in Linux-style:
 ```bash
 # Submit all drafts
-ibkr-porez list --status draft -1 | xargs -I {} ibkr-porez submit {}
+ibkr-porez list --status draft -1 | ibkr-porez submit
 ```
 
 ### View Declaration Details (`show`)
@@ -155,7 +155,7 @@ Displays:
 
 ### Submit Declaration (`submit`)
 ```bash
-ibkr-porez submit <declaration_id>
+ibkr-porez submit <id> [<id> ...]
 ```
 
 Marks the declaration as submitted (imported to the tax portal).
@@ -169,8 +169,8 @@ Behavior depends on declaration type:
 
 ### Pay Declaration (`pay`)
 ```bash
-ibkr-porez pay <declaration_id>
-ibkr-porez pay <declaration_id> --tax 1234.56
+ibkr-porez pay <id> [<id> ...]
+ibkr-porez pay <id> --tax 1234.56
 ```
 
 Marks the declaration as finalized and stores payment date.
@@ -209,10 +209,10 @@ Copies XML and all attached files ([attach](#attach-file-to-declaration-attach))
 ### Revert Declaration Status (`revert`)
 ```bash
 # Revert to draft (default)
-ibkr-porez revert <declaration_id>
+ibkr-porez revert <id> [<id> ...]
 
 # Revert to submitted
-ibkr-porez revert <declaration_id> --to submitted
+ibkr-porez revert <id> [<id> ...] --to submitted
 ```
 
 Reverts declaration status.

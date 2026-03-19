@@ -16,11 +16,14 @@ pub mod submit;
 pub mod sync;
 pub mod tables;
 
+use std::io::{BufRead, IsTerminal};
+
 use anyhow::{Result, bail};
 use chrono::{Datelike, Local, NaiveDate};
 use rust_decimal::Decimal;
 
 use ibkr_porez::config as app_config;
+use ibkr_porez::declaration_manager::{BulkResult, DeclarationManager};
 use ibkr_porez::holidays::HolidayCalendar;
 use ibkr_porez::models::UserConfig;
 use ibkr_porez::nbs::NBSClient;
@@ -101,6 +104,58 @@ fn init_calendar(cfg: &UserConfig) -> HolidayCalendar {
 
 fn make_nbs<'a>(storage: &'a Storage, cal: &'a HolidayCalendar) -> NBSClient<'a> {
     NBSClient::new(storage, cal)
+}
+
+pub(crate) fn resolve_ids(args: Vec<String>) -> Vec<String> {
+    if !args.is_empty() {
+        return args;
+    }
+    let stdin = std::io::stdin();
+    if stdin.is_terminal() {
+        return vec![];
+    }
+    stdin
+        .lock()
+        .lines()
+        .map_while(Result::ok)
+        .map(|l| l.trim().to_string())
+        .filter(|l| !l.is_empty())
+        .collect()
+}
+
+pub(crate) fn run_bulk<F>(args: Vec<String>, op: F) -> Result<()>
+where
+    F: FnMut(&DeclarationManager<'_>, &str) -> Result<()>,
+{
+    let ids = resolve_ids(args);
+    run_bulk_resolved(&ids, op)
+}
+
+pub(crate) fn run_bulk_resolved<F>(ids: &[String], op: F) -> Result<()>
+where
+    F: FnMut(&DeclarationManager<'_>, &str) -> Result<()>,
+{
+    if ids.is_empty() {
+        bail!("no declaration IDs provided");
+    }
+    let cfg = load_config_or_exit();
+    let storage = make_storage(&cfg);
+    let manager = DeclarationManager::new(&storage);
+    let id_refs: Vec<&str> = ids.iter().map(String::as_str).collect();
+    let result = manager.apply_each(&id_refs, op);
+    report_bulk_result(&result)
+}
+
+fn report_bulk_result(result: &BulkResult) -> Result<()> {
+    if result.has_errors() {
+        eprintln!("{}", result.error_summary());
+        bail!(
+            "{} succeeded, {} failed",
+            result.ok_count,
+            result.errors.len()
+        );
+    }
+    Ok(())
 }
 
 pub(crate) fn validate_non_negative_decimal(val: Decimal) -> Result<Decimal> {
