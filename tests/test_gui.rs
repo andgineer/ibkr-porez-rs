@@ -67,8 +67,16 @@ fn app_in_dir(decls: Vec<Declaration>, tmp: &tempfile::TempDir) -> App {
         storage.save_declaration(d).unwrap();
     }
     let config = UserConfig {
+        ibkr_token: "test-token".into(),
+        ibkr_query_id: "test-query".into(),
+        personal_id: "1234567890123".into(),
+        full_name: "Test User".into(),
+        address: "Test Address 1".into(),
+        city_code: "223".into(),
+        phone: "0641234567".into(),
+        email: "test@test.com".into(),
         data_dir: Some(tmp.path().to_string_lossy().into_owned()),
-        ..UserConfig::default()
+        output_folder: None,
     };
     App {
         config,
