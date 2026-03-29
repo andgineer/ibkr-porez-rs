@@ -18,6 +18,8 @@ const RETRY_DELAY: std::time::Duration = std::time::Duration::from_secs(2);
 pub struct IBKRClient {
     token: String,
     query_id: String,
+    request_url: String,
+    get_url: String,
     http: reqwest::blocking::Client,
 }
 
@@ -27,6 +29,19 @@ impl IBKRClient {
         Self {
             token: token.to_string(),
             query_id: query_id.to_string(),
+            request_url: FLEX_URL_REQUEST.to_string(),
+            get_url: FLEX_URL_GET.to_string(),
+            http: build_http_client(std::time::Duration::from_secs(30)),
+        }
+    }
+
+    #[must_use]
+    pub fn with_base_url(token: &str, query_id: &str, base_url: &str) -> Self {
+        Self {
+            token: token.to_string(),
+            query_id: query_id.to_string(),
+            request_url: format!("{base_url}/SendRequest"),
+            get_url: format!("{base_url}/GetStatement"),
             http: build_http_client(std::time::Duration::from_secs(30)),
         }
     }
@@ -54,7 +69,7 @@ impl IBKRClient {
     fn try_fetch_report(&self) -> Result<String> {
         let resp = self
             .http
-            .get(FLEX_URL_REQUEST)
+            .get(&self.request_url)
             .query(&[
                 ("t", self.token.as_str()),
                 ("q", self.query_id.as_str()),
@@ -80,7 +95,7 @@ impl IBKRClient {
         let base_url = req_resp
             .url
             .filter(|u| !u.is_empty())
-            .unwrap_or_else(|| FLEX_URL_GET.to_string());
+            .unwrap_or_else(|| self.get_url.clone());
 
         let resp = self
             .http
@@ -460,5 +475,125 @@ mod tests {
         };
         let tx = convert_cash_transaction(&ct).unwrap();
         assert_eq!(tx.r#type, TransactionType::WithholdingTax);
+    }
+
+    fn flex_xml_report() -> &'static str {
+        r#"<FlexQueryResponse>
+          <FlexStatements>
+            <FlexStatement>
+              <Trades>
+                <Trade symbol="AAPL" currency="USD" quantity="10" tradePrice="150.00"
+                       tradeDate="20250109" tradeID="T1" fifoPnlRealized="100.00"
+                       description="Apple Inc" />
+              </Trades>
+              <CashTransactions>
+                <CashTransaction type="Dividends" symbol="AAPL" currency="USD"
+                                 amount="25.00" dateTime="20250109" transactionID="D1"
+                                 description="AAPL dividend" />
+              </CashTransactions>
+            </FlexStatement>
+          </FlexStatements>
+        </FlexQueryResponse>"#
+    }
+
+    fn send_request_matcher() -> mockito::Matcher {
+        mockito::Matcher::Regex(r"^/SendRequest\?".into())
+    }
+
+    fn get_statement_matcher() -> mockito::Matcher {
+        mockito::Matcher::Regex(r"^/GetStatement\?".into())
+    }
+
+    #[test]
+    fn ibkr_client_fetch_success() {
+        let xml = flex_xml_report();
+        let mut server = mockito::Server::new();
+        let request_mock = server
+            .mock("GET", send_request_matcher())
+            .with_status(200)
+            .with_body(format!(
+                "<FlexStatementResponse>\
+                   <Status>Success</Status>\
+                   <ReferenceCode>REF123</ReferenceCode>\
+                   <Url>{}/GetStatement</Url>\
+                 </FlexStatementResponse>",
+                server.url()
+            ))
+            .create();
+        let get_mock = server
+            .mock("GET", get_statement_matcher())
+            .with_status(200)
+            .with_body(xml)
+            .create();
+
+        let client = IBKRClient::with_base_url("tok", "qid", &server.url());
+        let result = client.fetch_latest_report().unwrap();
+        assert!(result.contains("AAPL"));
+        request_mock.assert();
+        get_mock.assert();
+    }
+
+    #[test]
+    fn ibkr_client_api_error() {
+        let mut server = mockito::Server::new();
+        let _mock = server
+            .mock("GET", send_request_matcher())
+            .with_status(200)
+            .with_body(
+                "<FlexStatementResponse>\
+                   <ErrorCode>1019</ErrorCode>\
+                   <ErrorMessage>Token expired</ErrorMessage>\
+                 </FlexStatementResponse>",
+            )
+            .expect(3)
+            .create();
+
+        let client = IBKRClient::with_base_url("tok", "qid", &server.url());
+        let err = client.fetch_latest_report().unwrap_err();
+        assert!(err.to_string().contains("1019"));
+        assert!(err.to_string().contains("Token expired"));
+    }
+
+    #[test]
+    fn ibkr_client_http_error_retries() {
+        let mut server = mockito::Server::new();
+        let mock = server
+            .mock("GET", send_request_matcher())
+            .with_status(500)
+            .expect(3)
+            .create();
+
+        let client = IBKRClient::with_base_url("tok", "qid", &server.url());
+        let result = client.fetch_latest_report();
+        assert!(result.is_err());
+        mock.assert();
+    }
+
+    #[test]
+    fn ibkr_client_uses_default_get_url_when_response_url_empty() {
+        let xml = flex_xml_report();
+        let mut server = mockito::Server::new();
+        let request_mock = server
+            .mock("GET", send_request_matcher())
+            .with_status(200)
+            .with_body(
+                "<FlexStatementResponse>\
+                   <Status>Success</Status>\
+                   <ReferenceCode>REF123</ReferenceCode>\
+                   <Url></Url>\
+                 </FlexStatementResponse>",
+            )
+            .create();
+        let get_mock = server
+            .mock("GET", get_statement_matcher())
+            .with_status(200)
+            .with_body(xml)
+            .create();
+
+        let client = IBKRClient::with_base_url("tok", "qid", &server.url());
+        let result = client.fetch_latest_report().unwrap();
+        assert!(result.contains("AAPL"));
+        request_mock.assert();
+        get_mock.assert();
     }
 }

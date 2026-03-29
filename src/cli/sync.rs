@@ -7,6 +7,7 @@ use chrono::{Datelike, Local};
 use super::{load_config_or_exit, make_nbs, make_storage, output, tables};
 use ibkr_porez::config as app_config;
 use ibkr_porez::holidays::HolidayCalendar;
+use ibkr_porez::ibkr_flex::IBKRClient;
 use ibkr_porez::models::{DeclarationType, IncomeDeclarationEntry, TaxReportEntry, UserConfig};
 use ibkr_porez::openholiday::OpenHolidayClient;
 use ibkr_porez::sync::{SyncOptions, run_sync};
@@ -22,6 +23,7 @@ pub fn run(output_dir: Option<PathBuf>, lookback: Option<i64>) -> Result<()> {
     let storage = make_storage(&cfg);
     let cal = init_calendar_with_sync(&cfg);
     let nbs = make_nbs(&storage, &cal);
+    let ibkr = IBKRClient::new(&cfg.ibkr_token, &cfg.ibkr_query_id);
 
     let options = SyncOptions {
         force: false,
@@ -30,7 +32,7 @@ pub fn run(output_dir: Option<PathBuf>, lookback: Option<i64>) -> Result<()> {
 
     let sp = output::spinner("Syncing data and creating declarations...");
 
-    let result = match run_sync(&storage, &nbs, &cfg, &cal, &options) {
+    let result = match run_sync(&storage, &nbs, &cfg, &cal, &options, &ibkr) {
         Ok(r) => {
             sp.finish_and_clear();
             r
@@ -141,4 +143,57 @@ fn next_year_fetch_threshold(year: i32) -> u32 {
     let h = hasher.finish();
     let offset = (h % 6) as u32;
     349 + offset
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn threshold_within_expected_range() {
+        for year in 2020..=2035 {
+            let t = next_year_fetch_threshold(year);
+            assert!(
+                (349..=354).contains(&t),
+                "threshold {t} for year {year} out of range 349..=354"
+            );
+        }
+    }
+
+    #[test]
+    fn threshold_deterministic() {
+        let a = next_year_fetch_threshold(2026);
+        let b = next_year_fetch_threshold(2026);
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn threshold_varies_across_years() {
+        let values: std::collections::HashSet<u32> =
+            (2020..=2035).map(next_year_fetch_threshold).collect();
+        assert!(
+            values.len() > 1,
+            "threshold should vary across years, got single value"
+        );
+    }
+
+    #[test]
+    fn init_calendar_returns_loaded_calendar() {
+        let cfg = UserConfig {
+            data_dir: Some(
+                tempfile::TempDir::new()
+                    .unwrap()
+                    .path()
+                    .display()
+                    .to_string(),
+            ),
+            ..UserConfig::default()
+        };
+        let cal = init_calendar_with_sync(&cfg);
+        let current_year = Local::now().year();
+        assert!(
+            cal.is_year_loaded(current_year),
+            "calendar should have current year after sync"
+        );
+    }
 }

@@ -91,3 +91,55 @@ fn load_existing(path: &std::path::Path) -> HashMap<i32, HashSet<NaiveDate>> {
     }
     result
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+
+    #[test]
+    fn load_existing_missing_file() {
+        let result = load_existing(std::path::Path::new("/nonexistent/path.json"));
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn load_existing_invalid_json() {
+        let mut f = tempfile::NamedTempFile::new().unwrap();
+        write!(f, "not json at all").unwrap();
+        let result = load_existing(f.path());
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn load_existing_valid_snapshot() {
+        let json = r#"{"holidays":{"2025":["2025-01-01","2025-01-07"]}}"#;
+        let mut f = tempfile::NamedTempFile::new().unwrap();
+        write!(f, "{json}").unwrap();
+        let result = load_existing(f.path());
+        assert_eq!(result.len(), 1);
+        let dates = &result[&2025];
+        assert_eq!(dates.len(), 2);
+        assert!(dates.contains(&NaiveDate::from_ymd_opt(2025, 1, 1).unwrap()));
+        assert!(dates.contains(&NaiveDate::from_ymd_opt(2025, 1, 7).unwrap()));
+    }
+
+    #[test]
+    fn load_existing_skips_unparseable_year() {
+        let json = r#"{"holidays":{"abc":["2025-01-01"],"2025":["2025-01-07"]}}"#;
+        let mut f = tempfile::NamedTempFile::new().unwrap();
+        write!(f, "{json}").unwrap();
+        let result = load_existing(f.path());
+        assert_eq!(result.len(), 1);
+        assert!(result.contains_key(&2025));
+    }
+
+    #[test]
+    fn load_existing_skips_bad_dates() {
+        let json = r#"{"holidays":{"2025":["2025-01-01","not-a-date"]}}"#;
+        let mut f = tempfile::NamedTempFile::new().unwrap();
+        write!(f, "{json}").unwrap();
+        let result = load_existing(f.path());
+        assert_eq!(result[&2025].len(), 1);
+    }
+}

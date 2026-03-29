@@ -354,11 +354,12 @@ impl App {
                 holidays.set_fallback(true);
             }
             let nbs = crate::nbs::NBSClient::new(&storage, &holidays);
+            let ibkr = crate::ibkr_flex::IBKRClient::new(&config.ibkr_token, &config.ibkr_query_id);
             let opts = crate::sync::SyncOptions {
                 force,
                 ..Default::default()
             };
-            let result = crate::sync::run_sync(&storage, &nbs, &config, &holidays, &opts)
+            let result = crate::sync::run_sync(&storage, &nbs, &config, &holidays, &opts, &ibkr)
                 .map_err(|e| e.to_string());
             let _ = tx.send(BackgroundResult::SyncDone(result));
         });

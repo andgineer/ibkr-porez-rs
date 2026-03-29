@@ -7,6 +7,7 @@ use tracing::{debug, info, warn};
 use crate::config;
 use crate::fetch;
 use crate::holidays::HolidayCalendar;
+use crate::ibkr_flex::IBKRClient;
 use crate::models::{Declaration, DeclarationStatus, DeclarationType, UserConfig};
 use crate::nbs::NBSClient;
 use crate::report_gains::generate_gains_report;
@@ -21,6 +22,7 @@ pub struct SyncOptions {
     pub forced_lookback_days: Option<i64>,
 }
 
+#[derive(Debug)]
 pub struct SyncResult {
     pub created_declarations: Vec<Declaration>,
     pub gains_skipped: bool,
@@ -35,10 +37,11 @@ pub fn run_sync(
     config: &UserConfig,
     holidays: &HolidayCalendar,
     options: &SyncOptions,
+    ibkr: &IBKRClient,
 ) -> Result<SyncResult> {
     validate_config_or_bail(config)?;
 
-    let fetch_result = fetch::fetch_and_import(storage, nbs, config)?;
+    let fetch_result = fetch::fetch_and_import(storage, nbs, config, ibkr)?;
     info!(
         inserted = fetch_result.inserted,
         updated = fetch_result.updated,
@@ -481,5 +484,136 @@ mod tests {
             "ppdg3r-h2-2025.xml",
             &DeclarationType::Ppo
         ));
+    }
+
+    fn valid_config() -> UserConfig {
+        UserConfig {
+            ibkr_token: "tok".into(),
+            ibkr_query_id: "qid".into(),
+            personal_id: "1234567890123".into(),
+            full_name: "Test User".into(),
+            address: "Test Address 1".into(),
+            city_code: "11000".into(),
+            phone: "0611234567".into(),
+            email: "test@example.org".into(),
+            ..UserConfig::default()
+        }
+    }
+
+    fn ibkr_xml_no_trades() -> &'static str {
+        r#"<FlexQueryResponse>
+          <FlexStatements>
+            <FlexStatement>
+              <Trades />
+              <CashTransactions />
+            </FlexStatement>
+          </FlexStatements>
+        </FlexQueryResponse>"#
+    }
+
+    fn send_request_matcher() -> mockito::Matcher {
+        mockito::Matcher::Regex(r"^/SendRequest\?".into())
+    }
+
+    fn setup_ibkr_mock(server: &mut mockito::Server, xml: &str) -> (mockito::Mock, mockito::Mock) {
+        let req = server
+            .mock("GET", send_request_matcher())
+            .with_status(200)
+            .with_body(format!(
+                "<FlexStatementResponse>\
+                   <Status>Success</Status>\
+                   <ReferenceCode>REF1</ReferenceCode>\
+                   <Url>{}/GetStatement</Url>\
+                 </FlexStatementResponse>",
+                server.url()
+            ))
+            .create();
+        let get = server
+            .mock("GET", mockito::Matcher::Regex(r"^/GetStatement\?".into()))
+            .with_status(200)
+            .with_body(xml)
+            .create();
+        (req, get)
+    }
+
+    #[test]
+    fn run_sync_invalid_config_is_rejected() {
+        let tmp = tempfile::TempDir::new().unwrap();
+        let storage = Storage::with_dir(tmp.path());
+        let cal = crate::holidays::HolidayCalendar::load_embedded();
+        let nbs = crate::nbs::NBSClient::with_base_url(&storage, &cal, "http://127.0.0.1:1");
+        let ibkr = IBKRClient::with_base_url("tok", "qid", "http://127.0.0.1:1");
+        let cfg = UserConfig::default();
+        let opts = SyncOptions::default();
+
+        let result = run_sync(&storage, &nbs, &cfg, &cal, &opts, &ibkr);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Configuration"));
+    }
+
+    #[test]
+    fn run_sync_no_trades_skips_both() {
+        let tmp = tempfile::TempDir::new().unwrap();
+        let storage = Storage::with_dir(tmp.path());
+        let cal = crate::holidays::HolidayCalendar::load_embedded();
+        let mut cfg = valid_config();
+        cfg.output_folder = Some(tmp.path().join("output").display().to_string());
+
+        let mut ibkr_server = mockito::Server::new();
+        let (req_m, get_m) = setup_ibkr_mock(&mut ibkr_server, ibkr_xml_no_trades());
+        let ibkr = IBKRClient::with_base_url("tok", "qid", &ibkr_server.url());
+
+        let mut nbs_server = mockito::Server::new();
+        let _nbs_mock = nbs_server
+            .mock("GET", mockito::Matcher::Any)
+            .with_status(404)
+            .create();
+        let nbs = crate::nbs::NBSClient::with_base_url(&storage, &cal, &nbs_server.url());
+
+        let opts = SyncOptions::default();
+        let result = run_sync(&storage, &nbs, &cfg, &cal, &opts, &ibkr).unwrap();
+
+        assert!(result.created_declarations.is_empty());
+        assert!(result.gains_skipped);
+        assert!(result.income_skipped);
+        req_m.assert();
+        get_m.assert();
+    }
+
+    #[test]
+    fn run_sync_ibkr_error_propagates() {
+        let tmp = tempfile::TempDir::new().unwrap();
+        let storage = Storage::with_dir(tmp.path());
+        let cal = crate::holidays::HolidayCalendar::load_embedded();
+        let mut cfg = valid_config();
+        cfg.output_folder = Some(tmp.path().join("output").display().to_string());
+
+        let mut ibkr_server = mockito::Server::new();
+        let mock = ibkr_server
+            .mock("GET", send_request_matcher())
+            .with_status(500)
+            .expect_at_least(1)
+            .create();
+        let ibkr = IBKRClient::with_base_url("tok", "qid", &ibkr_server.url());
+
+        let nbs = crate::nbs::NBSClient::with_base_url(&storage, &cal, "http://127.0.0.1:1");
+
+        let opts = SyncOptions::default();
+        let result = run_sync(&storage, &nbs, &cfg, &cal, &opts, &ibkr);
+        assert!(result.is_err());
+        mock.assert();
+    }
+
+    #[test]
+    fn validate_config_or_bail_passes_valid() {
+        let cfg = valid_config();
+        assert!(validate_config_or_bail(&cfg).is_ok());
+    }
+
+    #[test]
+    fn validate_config_or_bail_rejects_empty() {
+        let cfg = UserConfig::default();
+        let err = validate_config_or_bail(&cfg).unwrap_err();
+        assert!(err.to_string().contains("Configuration"));
     }
 }
