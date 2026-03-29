@@ -40,6 +40,7 @@ jobs:
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
+      - uses: astral-sh/setup-uv@v5  # required by test_python_compat.rs
 
       - name: Install system dependencies (Linux)
         if: runner.os == 'Linux'
@@ -62,6 +63,7 @@ jobs:
         with:
           components: llvm-tools-preview
       - uses: Swatinem/rust-cache@v2
+      - uses: astral-sh/setup-uv@v5  # required by test_python_compat.rs
       - uses: taiki-e/install-action@cargo-llvm-cov
 
       - name: Install system dependencies
