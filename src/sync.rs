@@ -501,14 +501,14 @@ mod tests {
     }
 
     fn ibkr_xml_no_trades() -> &'static str {
-        r#"<FlexQueryResponse>
+        r"<FlexQueryResponse>
           <FlexStatements>
             <FlexStatement>
               <Trades />
               <CashTransactions />
             </FlexStatement>
           </FlexStatements>
-        </FlexQueryResponse>"#
+        </FlexQueryResponse>"
     }
 
     fn send_request_matcher() -> mockito::Matcher {

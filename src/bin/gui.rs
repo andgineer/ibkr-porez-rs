@@ -80,7 +80,7 @@ fn wgpu_adapter_selector() -> eframe::egui_wgpu::NativeAdapterSelectorMethod {
 }
 
 fn make_wgpu_options() -> eframe::egui_wgpu::WgpuConfiguration {
-    let wgpu_options = eframe::egui_wgpu::WgpuConfiguration {
+    eframe::egui_wgpu::WgpuConfiguration {
         wgpu_setup: eframe::egui_wgpu::WgpuSetup::CreateNew(
             eframe::egui_wgpu::WgpuSetupCreateNew {
                 native_adapter_selector: Some(wgpu_adapter_selector()),
@@ -88,18 +88,16 @@ fn make_wgpu_options() -> eframe::egui_wgpu::WgpuConfiguration {
             },
         ),
         ..Default::default()
-    };
-    wgpu_options
+    }
 }
 
 fn make_native_options(title: &str) -> eframe::NativeOptions {
-    let options = eframe::NativeOptions {
+    eframe::NativeOptions {
         viewport: make_viewport().with_title(title),
         renderer: eframe::Renderer::Wgpu,
         wgpu_options: make_wgpu_options(),
         ..Default::default()
-    };
-    options
+    }
 }
 
 fn main() {

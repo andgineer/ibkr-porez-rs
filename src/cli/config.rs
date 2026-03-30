@@ -343,8 +343,10 @@ mod tests {
 
     #[test]
     fn is_config_empty_partial() {
-        let mut cfg = UserConfig::default();
-        cfg.ibkr_token = "token".into();
+        let cfg = UserConfig {
+            ibkr_token: "token".into(),
+            ..UserConfig::default()
+        };
         assert!(!is_config_empty(&cfg));
     }
 

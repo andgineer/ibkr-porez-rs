@@ -75,6 +75,7 @@ fn valid_test_config(tmp: &tempfile::TempDir) -> UserConfig {
     }
 }
 
+#[allow(clippy::needless_pass_by_value)]
 fn setup_app(decls: Vec<Declaration>, transactions: Vec<Transaction>) -> (App, tempfile::TempDir) {
     let tmp = tempfile::TempDir::new().unwrap();
     let storage = Storage::with_dir(tmp.path());

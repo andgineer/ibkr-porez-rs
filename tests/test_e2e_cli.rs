@@ -68,6 +68,7 @@ fn make_draft(storage: &Storage, id: &str) {
     );
 }
 
+#[allow(clippy::too_many_arguments)]
 fn make_trade(
     id: &str,
     date: NaiveDate,
