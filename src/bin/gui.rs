@@ -4,6 +4,10 @@ use eframe::egui;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+fn window_title() -> String {
+    format!("IBKR Porez v{VERSION}")
+}
+
 fn log_file_path() -> std::path::PathBuf {
     dirs::config_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
@@ -75,11 +79,7 @@ fn wgpu_adapter_selector() -> eframe::egui_wgpu::NativeAdapterSelectorMethod {
     )
 }
 
-fn main() {
-    setup_panic_hook();
-
-    let title = format!("IBKR Porez v{VERSION}");
-
+fn make_wgpu_options() -> eframe::egui_wgpu::WgpuConfiguration {
     let wgpu_options = eframe::egui_wgpu::WgpuConfiguration {
         wgpu_setup: eframe::egui_wgpu::WgpuSetup::CreateNew(
             eframe::egui_wgpu::WgpuSetupCreateNew {
@@ -89,13 +89,24 @@ fn main() {
         ),
         ..Default::default()
     };
+    wgpu_options
+}
 
+fn make_native_options(title: &str) -> eframe::NativeOptions {
     let options = eframe::NativeOptions {
-        viewport: make_viewport().with_title(&title),
+        viewport: make_viewport().with_title(title),
         renderer: eframe::Renderer::Wgpu,
-        wgpu_options,
+        wgpu_options: make_wgpu_options(),
         ..Default::default()
     };
+    options
+}
+
+fn main() {
+    setup_panic_hook();
+
+    let title = window_title();
+    let options = make_native_options(&title);
 
     if let Err(e) = eframe::run_native(
         &title,
@@ -104,5 +115,37 @@ fn main() {
     ) {
         log_error(&format!("GUI failed to start: {e}"));
         std::process::exit(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn window_title_contains_version() {
+        assert_eq!(window_title(), format!("IBKR Porez v{VERSION}"));
+    }
+
+    #[test]
+    fn native_options_use_wgpu_renderer() {
+        let options = make_native_options("test");
+        assert!(matches!(options.renderer, eframe::Renderer::Wgpu));
+    }
+
+    #[test]
+    fn native_options_propagate_title() {
+        let options = make_native_options("test title");
+        assert_eq!(options.viewport.title, Some("test title".into()));
+    }
+
+    #[test]
+    fn native_options_set_expected_sizes() {
+        let options = make_native_options("test");
+        assert_eq!(options.viewport.inner_size.unwrap(), [1100.0, 700.0].into());
+        assert_eq!(
+            options.viewport.min_inner_size.unwrap(),
+            [800.0, 500.0].into()
+        );
     }
 }
